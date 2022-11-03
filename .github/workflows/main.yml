@@ -8,8 +8,9 @@ jobs:
     name: Uploads files to BunnyCDN storage
     environment: BunnyCDN
     steps:
+      - uses: actions/checkout@v2
       - name: Upload
-        uses: skyeto/actionbunny@master
+        uses: skyeto/actionbunny@main
         with:
           source: ""
           storageZone: "${{ env.STORAGEZONE }}"
