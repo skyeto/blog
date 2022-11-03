@@ -1,0 +1,17 @@
+name: Deploy to BunnyCDN
+
+on: [push]
+
+jobs:
+  bunnycdn_deploy_job:
+    runs_on: ubuntu-latest
+    name: Uploads files to BunnyCDN storage
+    environment: BunnyCDN
+    steps:
+      - name: Upload
+        uses: skyeto/bunnyaction@master
+        with:
+          source: ""
+          storageZone: "${{ env.STORAGEZONE }}"
+          storageKey: "${{ env.STORAGEKEY }}"
+          apiKey: "${{ env.APIKEY }}"
