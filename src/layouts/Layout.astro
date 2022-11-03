@@ -1,0 +1,61 @@
+---
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif&display=swap" rel="stylesheet">
+	</head>
+  <body>
+    <slot />
+
+    <footer>
+      &copy; 2022 skyeto
+    </footer>
+	</body>
+</html>
+<style is:global>
+  @font-face {
+    font-family: "Cascadia Code";
+    src: url("/fonts/CascadiaCode.woff2");
+  }
+
+	:root {
+		--accent: 124, 58, 237;
+    --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
+
+    --background: #212227;
+    --body: #F7F6F3;
+    --muted: #DEDBCF;
+	}
+	html {
+    font-family: "IBM Plex Serif", system-ui, sans-serif;
+		background-color: var(--background);
+    color: var(--body);
+	}
+  code {
+    font-variant-ligatures: normal;
+    font-feature-settings:"liga" on, "dlig" on;
+    letter-spacing: normal !important;
+    text-rendering: optimizeLegibility;
+    font-family: "Cascadia Code", 'IBM Plex Mono', Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+			Bitstream Vera Sans Mono, Courier New, monospace;
+  }
+
+  .monospace {
+    font-family: "IBM Plex Mono", monospace;
+  }
+</style>

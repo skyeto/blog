@@ -1,0 +1,73 @@
+---
+import Layout from "./Layout.astro";
+const { frontmatter } = Astro.props;
+---
+
+<style is:global>
+  article > aside {
+    color: var(--muted) !important;
+    display: block;
+    float: left;
+    position: absolute;
+
+    @apply left-[7rem] w-[12rem];
+
+    clear: both;
+    margin-bottom: 1rem;
+
+    font-style: italic;
+    font-size: theme("fontSize.sm");
+    line-height: 1.3;
+    text-align: right;
+  }
+
+  article {
+    @apply max-w-2xl mb-4 mx-auto;
+  }
+
+  /* Lists */
+  article > p, article > ol {
+    @apply px-8;
+  }
+
+  /* Images */
+  article > p > img {
+    @apply my-[2rem] relative -mx-[2rem] rounded;
+    width: calc(100% + 4rem);
+    max-width: calc(100% + 4rem);
+  }
+
+  article > .ingress {
+    font-style: italic;
+  }
+
+  article > p {
+    margin-bottom: 1rem;
+  }
+  
+  article > pre.astro-code {
+    @apply text-sm my-[2rem] -mx-[3rem];
+    border-radius: 0.25rem;
+  }
+
+  article > h1 {
+    color: #00b5e2;
+    background-image: linear-gradient(90deg, rgba(0,181,226,1) 0%, rgba(68,224,255,1) 100%); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100%;
+    background-position: 0%;
+  }
+
+
+
+</style>
+
+<Layout>
+  <article class="justify-center gap-2 text-base mt-8">
+    <h1 class="monospace text-xl">{ frontmatter.title }</h1>
+    <p class="ingress">{ frontmatter.description }</p>
+    <slot />
+  </article>
+</Layout>
+
