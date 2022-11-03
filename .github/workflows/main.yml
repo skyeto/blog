@@ -13,6 +13,6 @@ jobs:
         uses: skyeto/actionbunny@main
         with:
           source: ""
-          storageZone: "${{ env.STORAGEZONE }}"
-          storageKey: "${{ env.STORAGEKEY }}"
-          apiKey: "${{ env.APIKEY }}"
+          storageZone: "${{ secrets.STORAGEZONE }}"
+          storageKey: "${{ secrets.STORAGEKEY }}"
+          apiKey: "${{ secrets.APIKEY }}"
