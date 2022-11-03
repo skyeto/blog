@@ -9,7 +9,7 @@ jobs:
     environment: BunnyCDN
     steps:
       - name: Upload
-        uses: skyeto/bunnyaction@master
+        uses: skyeto/actionbunny@master
         with:
           source: ""
           storageZone: "${{ env.STORAGEZONE }}"
