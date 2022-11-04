@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/Post.astro
-title: "another newer post"
-pubDate: 2022-04-16
-description: "How to escape a seccomp jail using only ptrace. Based on a CTF challenge from UMDCTF 2022."
+title: "Using a CDN/Caching with Ghost"
+pubDate: 2021-06-15
+description: "Using BunnyCDN to proxy and cache requests to Ghost."
 author: "skyeto"
-tags: ["ctf"]
+tags: ["cdn", "web"]
 ---
 
 tl;dr: I use BunnyCDN in front of Ghost. No nginx proxy-ing or complicated set-up steps, got it up and running in 10 minutes. Better load times worldwide, no worrying about scaling during traffic spikes. Step-by-step guide below!
@@ -20,6 +20,8 @@ Sidenote, I even did experiments statically generating the blog using the conten
 The stack I ended up with has a few issues. One is that the servers are located in Amsterdam meaning that the round-trip latency to Asia and the Americas is terrible. Buying servers in more geographically distant locations would be expensive and painful to manage. The second (annoying) issue is that Traefik which I use for internal routing doesn't have a caching layer included in the community version, so it's rather compute intensive. Lastly and the most painful issue is that Ghost requires certain paths to bypass the cache, specifically /ghost** and /members** (if you use the members functionality, which I don't).
 
 I've been using Bunny.net to host various static sites, assets, and as a front for my S3 buckets for the better part of two years. It's been super easy to set-up and the monthly minimum of one dollaroo is cheap compared to other providers. Usually I end up quite a bit below that. Even when running several bandwidth-hungry but caching friendly services. Also! It has a friggin' bunny as a logo!
+
+![A BunnyCDN-bunny, orange, with their paws on a log. Drawn in an abstract vector style.](/posts/bunnycdn-ghost/bunnycdn-bunny.svg)
 
 So - recently I discovered that it's possible to set edge rules on certain paths to control aspects of the CDN layer. This means that it's super simple to exclude the paths that have to bypass the caching in Ghost. Then you can just chuck the CDN in-between and be done with it in a matter of minutes! Pretty cool!
 

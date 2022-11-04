@@ -1,0 +1,67 @@
+---
+layout: ../../layouts/Post.astro
+title: "CrateCTF 2021 - Writeups"
+pubDate: 2021-10-31
+description: "A couple writeups from CrateCTF hosted by the Swedish Defence Research Agency (FOI)"
+author: "skyeto"
+tags: ["ctf"]
+---
+
+The Swedish Defense Research Agency (FOI) hosted CrateCTF during the weekend. Here's a couple short writeups for the challs I solved. Bit bummed out that I didn't get a chance to finish all the pwn challs, the modbus one looked awesomely archaic!
+
+
+## FutureFlag (Rev)
+
+```c
+int main(int argc, char **argv) {
+  int result; // eax
+  time_t t1, t2; // [rsp+20h] [rbp-120h] [rsp+28h] [rbp-118h]
+
+  t1 = time(0LL);
+  usleep(2u);
+  t2 = time(0LL);
+  
+  if ( t1 > 1704063599 ) {
+    if ( t2 < t1 ) {
+      decrypt_flag(1682003009LL);
+    } else {
+      fwrite("The flag is probably in the past?\n");
+    }
+  } else {
+    fwrite("This program can't be run before 2024-01-01\n");
+  }
+}
+```
+
+There's not much to reverse, the problem is to get the clock to be 1. set a couple years in the future (without waiting a couple years), and 2. go backwards! We could also reverse decrypt_flag(uint64_t key) function, but that requires more reversing.
+
+The answer is - faketime, a tool that LD_PRELOAD's a small library that catches system calls to time(). It has a rather expressive timestamp format where you can even adjust timescales that is useful in this case.
+
+I heard some other teams that tried patching the binary, which is entirely doable but also much more painful than faketime -f '+10y i-1,0' ./challenge. The command calls the binary and sets the clock 10 years in the future going backwards.
+
+
+## Tokfrans (Web)
+
+My hate for source-less web challenges runs deeper and deeper. Although this one was fairly simple. 
+
+When opening the website we are greeted by a login form. We've got credentials for the user zeke in the challenge description. They work, but the website says that we they don't have any files stored on the server.
+
+The login mechanism uses a JWT (a jot!) signed using HS256 with the claim that zeke is a user. Firstly, it's worth seeing if the server accepts none as a signature (which it didn't in this case). Then we can try to bruteforce the password used when hashing.
+
+Newer versions of john support HMAC-SHA256 (HS256), so that's the obvious next step (as I said, I hate web challs without a source, so I don't want to touch any of the input boxes!). 
+
+```bash
+❯ echo "[jwt goes here]" > jwt.txt
+❯ ./john/run/john jwt.txt --format=HMAC-SHA256 --wordlist="../../rockyou.txt"
+Using default input encoding: UTF-8
+Loaded 1 password hash (HMAC-SHA256 [password is key, SHA256 256/256 AVX2 8x])
+Will run 24 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+queenoftherabbitkillers (?)
+1g 0:00:00:00 DONE (2021-10-30 17:39) 2.702g/s 12088Kp/s 12088Kc/s 12088KC/s raahauge..pwolivo
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed.
+```
+
+Success! We have the password used to sign the JWT. Using jwt.io we can sign arbitrary tokens. After trying to change the username to admin, I changed the claims to include admin, and voilá - we have a flag.
+

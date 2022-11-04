@@ -11,10 +11,13 @@ const { title, description, pubDate } = Astro.props;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="https://blog.cdn.skyeto.net/favicon.svg">
 		<title>skyeto | {title}</title>
 
+    <!-- *sigh* SEO / Meta tags... -->
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}>
+    
+    {Astro.url.pathname == "/" && <meta name="description" content={description}>}
 
     <meta property="og:site_name" content="Ramblings of a Fox">
     <meta property="og:type" content="article">
@@ -32,6 +35,7 @@ const { title, description, pubDate } = Astro.props;
     <meta name="twitter:creator" content="@skyetothefox">
     <meta name="twitter:dnt" content="on">
 
+    <!-- preload custom fonts -->
     <link rel="preload" as="font" href="/fonts/RobotoSlab-Regular.woff2" type="font/woff2" crossorigin="anonymous">
     <link rel="preload" as="font" href="/fonts/CascadiaCode.woff2" type="font/woff2" crossorigin="anonymous">
 	</head>
@@ -45,6 +49,15 @@ const { title, description, pubDate } = Astro.props;
     <footer class="container">
       &copy; 2022 skyeto
     </footer>
+
+    <!-- 
+      hai there again
+      as you see I do some light analytics, it's all self-hosted and doesn't collect any more
+      data than regular logging.
+      read more about it at plausible.io
+      ~ 🦊
+    -->
+    <script async="" defer="" data-domain="blog.skyeto.com" src="https://blog.cdn.skyeto.net/p_.js"></script>
 	</body>
 </html>
 <style is:global>
