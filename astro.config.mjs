@@ -10,6 +10,10 @@ import mdx from "@astrojs/mdx";
 import prefetch from "@astrojs/prefetch";
 
 // https://astro.build/config
+import compress from "astro-compress";
+
+// https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), mdx(), prefetch()]
+  site: "https://skyeto.com",
+  integrations: [tailwind(), mdx(), prefetch(), compress()]
 });

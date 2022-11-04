@@ -5,7 +5,10 @@ const { frontmatter } = Astro.props;
 ---
 
 
-<Layout>
+<Layout
+    title={frontmatter.title}
+    description={frontmatter.description}
+    pubDate={frontmatter.pubDate}>
   <Navbar />
   <article class="container justify-center gap-2 text-base mt-8">
     <h1>> { frontmatter.title }</h1>
