@@ -10,15 +10,21 @@ const { frontmatter } = Astro.props;
     float: left;
     position: absolute;
 
-    @apply left-[7rem] w-[12rem];
+    @apply ml-[-11rem] w-[12rem];
 
     clear: both;
     margin-bottom: 1rem;
 
     font-style: italic;
-    font-size: theme("fontSize.sm");
     line-height: 1.3;
     text-align: right;
+  }
+
+  article > aside > p {
+    @apply text-sm;
+  }
+  article > aside > p:last-child {
+    @apply mb-[4rem];
   }
 
   article {
@@ -26,7 +32,7 @@ const { frontmatter } = Astro.props;
   }
 
   /* Lists */
-  article > p, article > ol {
+  article > p, article > ol, h1,h2,h3,h4 {
     @apply px-8;
   }
 
@@ -38,6 +44,7 @@ const { frontmatter } = Astro.props;
   }
 
   article > .ingress {
+    @apply mt-[1rem] mb-[2rem];
     font-style: italic;
   }
 
@@ -46,26 +53,14 @@ const { frontmatter } = Astro.props;
   }
   
   article > pre.astro-code {
-    @apply text-sm my-[2rem] -mx-[3rem];
-    border-radius: 0.25rem;
+    @apply my-[2rem] -mx-[3rem];
   }
-
-  article > h1 {
-    color: #00b5e2;
-    background-image: linear-gradient(90deg, rgba(0,181,226,1) 0%, rgba(68,224,255,1) 100%); 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-size: 100%;
-    background-position: 0%;
-  }
-
-
 
 </style>
 
 <Layout>
   <article class="justify-center gap-2 text-base mt-8">
-    <h1 class="monospace text-xl">{ frontmatter.title }</h1>
+    <h1>> { frontmatter.title }</h1>
     <p class="ingress">{ frontmatter.description }</p>
     <slot />
   </article>

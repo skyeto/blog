@@ -14,10 +14,6 @@ const { title } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif&display=swap" rel="stylesheet">
 	</head>
   <body>
     <slot />
@@ -30,7 +26,18 @@ const { title } = Astro.props;
 <style is:global>
   @font-face {
     font-family: "Cascadia Code";
-    src: url("/fonts/CascadiaCode.woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/CascadiaCode.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "Roboto Slab";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/RobotoSlab-Regular.woff2") format("woff2");
   }
 
 	:root {
@@ -41,21 +48,53 @@ const { title } = Astro.props;
     --body: #F7F6F3;
     --muted: #DEDBCF;
 	}
-	html {
-    font-family: "IBM Plex Serif", system-ui, sans-serif;
-		background-color: var(--background);
+  
+  html {
+    font-family: "Roboto Slab", system-ui, sans-serif;
+    background-color: var(--background);
     color: var(--body);
-	}
+  }
+
+  h1,h2,h3,h4 { font-family: "Cascadia Code", monospace; }
+  h1 {
+    @apply text-2xl mt-[2rem] mb-[1rem];
+
+    color: #00b5e2;
+    background-image: linear-gradient(90deg, rgba(0,181,226,1) 0%, rgba(68,224,255,1) 100%); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100%;
+    background-position: 0%;
+  }
+
+  h2 {
+    @apply text-[1.23rem] font-bold mb-[.5rem] mt-[2.5rem]; 
+  }
+  h3 {
+    @apply text-[1.16rem] mb-[.5rem] mt-[1.5rem];
+  }
+  h4 {}
+
+  p {
+    @apply text-base mb-[.5rem];
+    font-kerning: normal;
+    font-variant-ligatures: common-ligatures contextual;
+    font-feature-settings: "kern", "liga", "clig", "calt";
+
+    word-break: normal;
+    hyphens: auto;
+  }
+
   code {
     font-variant-ligatures: normal;
     font-feature-settings:"liga" on, "dlig" on;
     letter-spacing: normal !important;
     text-rendering: optimizeLegibility;
-    font-family: "Cascadia Code", 'IBM Plex Mono', Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    font-family: "Cascadia Code", Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
 			Bitstream Vera Sans Mono, Courier New, monospace;
   }
 
-  .monospace {
-    font-family: "IBM Plex Mono", monospace;
+  pre.astro-code {
+    @apply text-sm py-[1rem] px-[.5rem] rounded border border-[#00b5e2] shadow-sm shadow-[#00b5e2];
   }
 </style>
