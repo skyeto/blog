@@ -84,6 +84,18 @@ const { title } = Astro.props;
     word-break: normal;
     hyphens: auto;
   }
+  
+  /* Container */
+  .container {
+    @apply max-w-2xl mb-4 mx-auto;
+  }
+
+  /* Images */
+  img {
+    @apply my-[2rem] relative -mx-[2rem] rounded shadow;
+    width: calc(100% + 4rem);
+    max-width: calc(100% + 4rem);
+  }
 
   code {
     font-variant-ligatures: normal;
@@ -95,6 +107,6 @@ const { title } = Astro.props;
   }
 
   pre.astro-code {
-    @apply text-sm py-[1rem] px-[.5rem] rounded border border-[#00b5e2] shadow-sm shadow-[#00b5e2];
+    @apply text-sm leading-[1.15] py-[1rem] px-[.5rem] rounded border border-[#00b5e2] shadow-sm shadow-[#00b5e2];
   }
 </style>

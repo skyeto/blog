@@ -1,0 +1,30 @@
+---
+export interface Props {}
+---
+
+<div class="container">
+  <nav>
+    <ul>
+      <li><a href="/">[ home ]</a></li>
+      <li><a href="/">[ about ]</a></li>
+    </ul>
+  </nav>
+</div>
+
+<style>
+  nav > ul {
+    @apply list-none px-[2rem] mt-[1rem];
+  }
+
+  nav > ul > li {
+    @apply inline mr-[0.5rem];
+  }
+
+  nav a {
+    @apply hover:underline;
+  }
+
+  nav a:hover {
+    color: #00b5e2;
+  }
+</style>

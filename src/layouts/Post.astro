@@ -1,5 +1,6 @@
 ---
 import Layout from "./Layout.astro";
+import Navbar from "../components/Navbar.astro";
 const { frontmatter } = Astro.props;
 ---
 
@@ -22,25 +23,15 @@ const { frontmatter } = Astro.props;
 
   article > aside > p {
     @apply text-sm;
+    hyphens: none;
   }
   article > aside > p:last-child {
     @apply mb-[4rem];
   }
 
-  article {
-    @apply max-w-2xl mb-4 mx-auto;
-  }
-
   /* Lists */
   article > p, article > ol, h1,h2,h3,h4 {
     @apply px-8;
-  }
-
-  /* Images */
-  article > p > img {
-    @apply my-[2rem] relative -mx-[2rem] rounded;
-    width: calc(100% + 4rem);
-    max-width: calc(100% + 4rem);
   }
 
   article > .ingress {
@@ -59,7 +50,8 @@ const { frontmatter } = Astro.props;
 </style>
 
 <Layout>
-  <article class="justify-center gap-2 text-base mt-8">
+  <Navbar />
+  <article class="container justify-center gap-2 text-base mt-8">
     <h1>> { frontmatter.title }</h1>
     <p class="ingress">{ frontmatter.description }</p>
     <slot />
