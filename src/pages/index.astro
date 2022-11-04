@@ -27,7 +27,7 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
 
     <h2>> posts</h2>
     <ul class="posts">
-      {posts.map((post) => 
+      {posts.sort((a,b) => { return Date.parse(b.frontmatter.pubDate) - Date.parse(a.frontmatter.pubDate); }).map((post) => 
       <li>
         <a class="block w-full" href={post.url} rel="prefetch">
           <div class="inline-block">{post.frontmatter.title}</div>
