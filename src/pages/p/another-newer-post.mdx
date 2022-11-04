@@ -1,0 +1,35 @@
+---
+layout: ../../layouts/Post.astro
+title: "another newer post"
+pubDate: 2022-04-16
+description: "How to escape a seccomp jail using only ptrace. Based on a CTF challenge from UMDCTF 2022."
+author: "skyeto"
+tags: ["ctf"]
+---
+
+tl;dr: I use BunnyCDN in front of Ghost. No nginx proxy-ing or complicated set-up steps, got it up and running in 10 minutes. Better load times worldwide, no worrying about scaling during traffic spikes. Step-by-step guide below!
+
+*Update* (June 27th 2022): I haven't tried using this with Ghost Members, so your mileage may vary. Although I would expect it to work. And a minor gripe is that the cache is fairly aggressive (as it should be), i.e. there's no good way to make sure it updates when changes occur in the content without manually purging in the Bunny.net panel. So expect delays in updates to the post listings etc.
+
+There are two hallmarks for the tech stack powering this blog (and the rest of my personal services). The first one is that parts are over-complicated for the fun of it, but still with the aim to keep costs down without sacrificing performance. It's especially important for this blog.
+
+Of course using a static site generator is easier than self-hosting. You can use GitHub pages, Netlify, or a whole bunch of other services for free. Although, they don't give you a data processing agreement which is important to me and is the reason I self-host (almost) everything. The editor that Ghost provides is also a pure joy to write in - the tools are minimal but cover everything I need and don't get in the way. 
+
+Sidenote, I even did experiments statically generating the blog using the content API built into Ghost. But upgrading it is a huge pain. The Eleventy starter was already quite a bit out of date and spending time copying code is not my idea of a fun evening.
+
+The stack I ended up with has a few issues. One is that the servers are located in Amsterdam meaning that the round-trip latency to Asia and the Americas is terrible. Buying servers in more geographically distant locations would be expensive and painful to manage. The second (annoying) issue is that Traefik which I use for internal routing doesn't have a caching layer included in the community version, so it's rather compute intensive. Lastly and the most painful issue is that Ghost requires certain paths to bypass the cache, specifically /ghost** and /members** (if you use the members functionality, which I don't).
+
+I've been using Bunny.net to host various static sites, assets, and as a front for my S3 buckets for the better part of two years. It's been super easy to set-up and the monthly minimum of one dollaroo is cheap compared to other providers. Usually I end up quite a bit below that. Even when running several bandwidth-hungry but caching friendly services. Also! It has a friggin' bunny as a logo!
+
+So - recently I discovered that it's possible to set edge rules on certain paths to control aspects of the CDN layer. This means that it's super simple to exclude the paths that have to bypass the caching in Ghost. Then you can just chuck the CDN in-between and be done with it in a matter of minutes! Pretty cool!
+
+## Setting it up
+0. *Pay for almost 2 years of my Bunny.net usage with this [referral link](https://bunnycdn.com/?ref=k1jiu7wifx) or don't with [this link](https://bunnycdn.com/) - up to you, I won't judge!*
+1. Create a new (sub-)domain for your blog, e.g. top-secret-blog-backend.example.com. This is what Bunny will use as the origin. Make sure the blog is accessible from it. You don't need to update the hostname in the Ghost configuration though, funky stuff will happen if you do!
+2. Create a new pull-zone on Bunny. Set the origin to the new subdomain for the blog and add the old domain as a hostname. Don't update the blog domain yet to avoid downtime. 
+3. Set up edge rules that override the Cache Time and Browser Cache time on */ghost, */ghost/*, */members, */members/*, */sitemap*.xml, and */robots.txt. They should be set to 0, the last two can be left out. 
+4. Lastly set the global cache settings to your desired caching duration.
+5. Verify that the blog is accessible over the b-cdn.net subdomain and that /ghost returns a cdn-cache=BYPASS header. If everything is OK, update the blog to a CNAME that points to the b-cdn.net subdomain! 
+6. Enable SSL and force SSL on the blog hostname in the control panel.
+7. Profit!!?! Go from handling (in my case) approx. 500 page loads a minute on a cheapo server to basically infinite with way better load times across all regions.
+8. Shouldn't really need mentioning, but I'm not in any way affiliated with BunnyCDN. Just a super happy customer. Aren't many services that I've had this much joy setting up. Did I say this blog runs behind BunnyCDN? 

@@ -2,17 +2,48 @@
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import Navbar from '../components/Navbar.astro';
+
+const posts = await Astro.glob("./p/*.{md,mdx}");
 ---
 
 <Layout title="Welcome to Astro.">
   <Navbar />
 	<main class="container justify-center">
     <h1>Hi there!</h1>
+    <p>This blog is a rambly collection of posts on different topics. </p>
+
+    <p>You can also find me on: <a href="https://twitter.com/skyetothefox">twitter</a></p>
+
+    <h2>posts</h2>
+    <ul class="posts">
+      {posts.map((post) => 
+      <li>
+        <a class="block w-full" href={post.url} rel="prefetch">
+          <div class="inline-block">{post.frontmatter.title}</div>
+          <div class="inline-block monospace float-right">[{post.frontmatter.pubDate.slice(0,10)}]</div>
+        </a>
+      </li>)}
+    </ul>
 	</main>
 </Layout>
 
 <style>
   .container {
     @apply px-[2rem];
+  }
+
+  .posts {
+    font-family: "Cascadia Code", monospace;
+  }
+
+  .posts li a:hover {
+    @apply text-[#00b5e2] transition;
+  }
+
+  ol { counter-reset: ctr -1; }
+  ol li { counter-increment: ctr; }
+  ol li::before {
+    @apply mr-[.5rem];
+    content: "[" counter(ctr) "]";
   }
 </style>
