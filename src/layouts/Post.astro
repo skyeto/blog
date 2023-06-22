@@ -11,7 +11,8 @@ const { frontmatter } = Astro.props;
     pubDate={frontmatter.pubDate}>
   <Navbar />
   <article class="container justify-center gap-2 text-base mt-8">
-    <h1>> { frontmatter.title }</h1>
+    <p class="pubdate">published { frontmatter.pubDate.slice(0, 10) }</p>
+    <h1>>{ frontmatter.title }</h1>
     <p class="ingress">{ frontmatter.description }</p>
     <slot />
   </article>
@@ -35,6 +36,11 @@ const { frontmatter } = Astro.props;
     text-align: right;
   }
 
+  article > .pubdate {
+    font-style: italic;
+    color: var(--muted);
+  }
+
   article > aside > p {
     @apply text-sm;
     hyphens: none;
@@ -44,7 +50,7 @@ const { frontmatter } = Astro.props;
   }
 
   /* Lists */
-  article > p, article ol, article ul,  article>h1,article>h2,article>h3,article>h4 {
+  article > p, article ol, article ul,  article>h1,article>h2,article>h3,article>h4, article>section>h2{
     @apply px-8;
   }
 

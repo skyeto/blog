@@ -40,14 +40,16 @@ const { title, description, pubDate } = Astro.props;
     <link rel="preload" as="font" href="/fonts/CascadiaCode.woff2" type="font/woff2" crossorigin="anonymous">
 	</head>
   <body>
-    <div class="container mt-[1rem] py-[1rem] px-[.5rem] rounded border border-sky-500 shadow bg-sky-800 text-sky-100">
+    <div class="container mt-[1rem] py-[1rem] px-[.5rem] rounded-sm border border-sky-500 shadow bg-sky-800 text-sky-100 shadow">
       <p class="text-sm"><b>Note:</b> Currently migrating away from Ghost. Expect a tiny bit of wonkyness!
       I'm doing it in the open, follow along on <a class="hover:underline font-bold" href="https://github.com/skyeto/blog">github.com/skyeto/blog</a>.</p>
     </div>
+
     <slot />
 
     <footer class="container">
-      &copy; 2022 skyeto
+      &copy; 2023 skyeto;<br>
+      Content is not licensed for use in AI models nor for training AI models. Copying for non-commercial purposes as long as you give attribution is totally okay!
     </footer>
 
     <!-- 
@@ -57,7 +59,7 @@ const { title, description, pubDate } = Astro.props;
       read more about it at plausible.io
       ~ 🦊
     -->
-<script is:inline async="" defer="" data-api="https://e.skyeto.com/api/event" data-domain="skyeto.com" src="https://blog.cdn.skyeto.net/p0.js"></script>
+    <script is:inline async="" defer="" data-api="https://e.skyeto.com/api/event" data-domain="skyeto.com" src="https://blog.cdn.skyeto.net/p0.js"></script>
 	</body>
 </html>
 <style is:global>
@@ -76,6 +78,22 @@ const { title, description, pubDate } = Astro.props;
     font-display: swap;
     src: url("/fonts/RobotoSlab-Regular.woff2") format("woff2");
   }
+
+  @font-face {
+     font-family: "Disket Mono";
+     font-weight: 400;
+     font-style: normal;
+     font-display: swap;
+     src: url("/fonts/Disket-Mono-Regular.ttf");
+  }
+
+   @font-face {
+     font-family: "Disket Mono Bold";
+     font-weight: 700;
+     font-style: normal;
+     font-display: swap;
+     src: url("/fonts/Disket-Mono-Bold.ttf");
+   }
 
 	:root {
 		--accent: 124, 58, 237;
@@ -96,7 +114,7 @@ const { title, description, pubDate } = Astro.props;
     color: var(--body);
   }
 
-  h1,h2,h3,h4 { font-family: "Cascadia Code", monospace; }
+  h1,h2,h3,h4 { font-family: "Disket Mono Bold", monospace; }
   h1 {
     @apply text-2xl mt-[2rem] mb-[1rem];
 
@@ -153,5 +171,7 @@ const { title, description, pubDate } = Astro.props;
 
   footer {
     @apply mt-[8rem] px-[2rem] opacity-20;
+    font-family: "Disket Mono", monospace;
+    font-size: 10px;
   }
 </style>

@@ -6,11 +6,13 @@ import Navbar from '../components/Navbar.astro';
 const posts = await Astro.glob("./p/*.{md,mdx}");
 ---
 
-<Layout 
-  title="Ramblings of a Fox" 
+<Layout
+  title="Ramblings of a Fox"
   description="A rambly collection of posts with everything from CTF writeups, bad ideas, bikepacking excursions, and more.">
+
   <Navbar />
-	<main class="container justify-center">
+
+  <main class="container justify-center">
     <h1>hi there!</h1>
     <p>I'm <span class="italic">/skaɪ-tuː/</span>. This blog is mostly a rambly collection of posts on different topics.</p>
 
@@ -25,9 +27,9 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
     </p>
 
 
-    <h2>> posts</h2>
+    <h2>posts</h2>
     <ul class="posts">
-      {posts.sort((a,b) => { return Date.parse(b.frontmatter.pubDate) - Date.parse(a.frontmatter.pubDate); }).map((post) => 
+      {posts.sort((a,b) => { return Date.parse(b.frontmatter.pubDate) - Date.parse(a.frontmatter.pubDate); }).filter((post) => !post.frontmatter.draft).map((post) =>
       <li>
         <a class="block w-full" href={post.url} rel="prefetch">
           <div class="inline-block">{post.frontmatter.title}</div>
@@ -35,7 +37,9 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
         </a>
       </li>)}
     </ul>
-	</main>
+  </main>
+
+  <!--<canvas id="bg-canvas"></canvas>-->
 </Layout>
 
 <style>
@@ -44,7 +48,7 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
   }
 
   .posts {
-    font-family: "Cascadia Code", monospace;
+    font-family: "Disket Mono Bold",  monospace;
   }
 
   .posts li a:hover {
@@ -57,4 +61,90 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
     @apply mr-[.5rem];
     content: "[" counter(ctr) "]";
   }
+
+  #bg-canvas {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    z-index: -1;
+  }
 </style>
+
+<!--
+<script>
+  import * as THREE from "three";
+  import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+  import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+  import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+  import { RenderPixelatedPass } from "three/addons/postprocessing/RenderPixelatedPass.js";
+  import { FilmPass } from "three/addons/postprocessing/FilmPass.js";
+  import { AsciiEffect } from "three/addons/effects/AsciiEffect.js";
+  import { TrackballControls } from "three/addons/controls/TrackballControls.js";
+
+  const clock = new THREE.Clock();
+
+  const canvas = document.querySelector("#bg-canvas");
+  const renderer = new THREE.WebGLRenderer({antialias: true, canvas, alpha: true, premultipliedAlpha: false});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 30);
+  camera.position.z = 20;
+
+
+  const fLight = new THREE.PointLight(0xff0000, 0.7, 20);
+  fLight.position.set(-5, 0, 5);
+  scene.add(fLight);
+
+  const bLight = new THREE.PointLight(0x00ff00, 3, 20);
+  bLight.position.set(-5, 5, -5);
+  scene.add(bLight);
+
+  const kLight = new THREE.PointLight(0x0000ff, 2, 20);
+  kLight.position.set(5, 0, 0);
+  scene.add(kLight);
+
+
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+
+
+  // Apply shaders
+  const composer = new EffectComposer(renderer);
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+  const pixelPass = new RenderPixelatedPass(9, scene, camera);
+  composer.addPass(pixelPass);
+  const unrealBloomPass = new UnrealBloomPass();
+  composer.addPass(unrealBloomPass);
+  const filmPass = new FilmPass(0.35, 0.025, 648, false);
+  composer.addPass(filmPass);
+
+  const effect = new AsciiEffect(renderer, " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@", { invert: false });
+  effect.setSize(window.innerWidth, window.innerHeight);
+  effect.domElement.style.color = "rgb(74, 210, 255)";
+  effect.domElement.style.backgroundColor = "transparent";
+  effect.domElement.style.fontFamily = "Disket Mono";
+  document.body.appendChild( effect.domElement );
+
+  const controls = new TrackballControls( camera, effect.domElement );
+
+  const render = () => {
+    requestAnimationFrame(render);
+
+    const d = clock.getDelta();
+
+    cube.rotation.x += 0.15*d;
+    cube.rotation.y += 0.15*d;
+    cube.rotation.z += 0.05*d;
+    //renderer.render(scene, camera);
+    //composer.render();
+    controls.update();
+    effect.render(scene, camera);
+  };
+  render();
+</script>
+-->
