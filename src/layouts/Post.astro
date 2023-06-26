@@ -69,6 +69,7 @@ const { frontmatter } = Astro.props;
 
   article > ul {
     @apply list-disc mb-[1rem];
+    list-style-position: inside;
   }
 
   article > ol {
@@ -81,6 +82,14 @@ const { frontmatter } = Astro.props;
 
   article a {
     @apply hover:underline decoration-dashed text-[#00b5e2];
+  }
+
+  article > .footnotes {
+    @apply mt-[10rem];
+  }
+
+  article > .footnotes > ol li p:first-child:before {
+    content: "> ";
   }
 </style>
 
