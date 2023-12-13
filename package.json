@@ -19,6 +19,7 @@
     "@types/react": "^18.2.38",
     "@types/react-dom": "^18.2.16",
     "astro": "^2.1.7",
+    "astro-compress": "^2.2.5",
     "geist": "^1.1.0",
     "postcss": "^8.4.21",
     "react": "^18.2.0",
