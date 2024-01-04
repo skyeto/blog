@@ -12,8 +12,8 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
 
   <Navbar />
 
-  <main class="container justify-center">
-    <h1>hi there!</h1>
+  <main class="container justify-center" transition:name="content" transition:type="slide">
+    <h1 transition:name="title">hi there!</h1>
     <p>I'm <span class="italic">/skaɪ-tuː/</span>. This blog is mostly a rambly collection of posts on different topics.</p>
 
     <p>
@@ -31,7 +31,7 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
     <ul class="posts">
       {posts.sort((a,b) => { return Date.parse(b.frontmatter.pubDate) - Date.parse(a.frontmatter.pubDate); }).filter((post) => post.frontmatter.publish === true || post.frontmatter.publish === undefined).map((post) =>
       <li>
-        <a class="block w-full" href={post.url} rel="prefetch">
+        <a class="block w-full" href={post.url}>
           <div class="inline-block">{post.frontmatter.title}</div>
           <div class="inline-block monospace float-right">[{post.frontmatter.pubDate.slice(0,10)}]</div>
         </a>

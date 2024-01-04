@@ -1,4 +1,6 @@
 ---
+import { ViewTransitions } from "astro:transitions";
+
 export interface Props {
 	title: string;
 }
@@ -38,6 +40,8 @@ const { title, description, pubDate } = Astro.props;
     <!-- preload custom fonts -->
     <link rel="preload" as="font" href="/fonts/RobotoSlab-Regular.woff2" type="font/woff2" crossorigin="anonymous">
     <link rel="preload" as="font" href="/fonts/CascadiaCode.woff2" type="font/woff2" crossorigin="anonymous">
+
+        <ViewTransitions />
 	</head>
   <body>
     <div class="rainbow flex flex-row w-3/4 lg:w-2/4 h-1/4 gap-6 blur-3xl absolute right-0 left-0 mx-auto -top-48" style="z-index: -1;">
