@@ -40,25 +40,26 @@ const { title, description, pubDate } = Astro.props;
     <link rel="preload" as="font" href="/fonts/CascadiaCode.woff2" type="font/woff2" crossorigin="anonymous">
 	</head>
   <body>
-    <div class="container mt-[1rem] py-[1rem] px-[.5rem] rounded-sm border border-sky-500 shadow bg-sky-800 text-sky-100 shadow">
-      <p class="text-sm"><b>Note:</b> Currently migrating away from Ghost. Expect a tiny bit of wonkyness!
-      I'm doing it in the open, follow along on <a class="hover:underline font-bold" href="https://github.com/skyeto/blog">github.com/skyeto/blog</a>.</p>
+    <div class="rainbow flex flex-row w-3/4 lg:w-2/4 h-1/4 gap-6 blur-3xl absolute right-0 left-0 mx-auto -top-48" style="z-index: -1;">
+        <div class="w-full h-64 rotate-10 bg-amber-400"></div>
+        <div class="w-full h-64 rotate-10 bg-white"></div>
+        <div class="w-full h-64 rotate-10 bg-violet-400"></div>
+        <div class="w-full h-64 rotate-10 bg-zinc-400"></div>
     </div>
 
+
+    <span class="bg-blend-luminosity mix-blend-luminosity">
     <slot />
+    </span>
 
     <footer class="container">
       &copy; 2023 skyeto; <a style="text-decoration: underline dotted" href="http://creativecommons.org/licenses/by-sa/4.0/">Licensed under CC-BY-SA 4.0</a><br>
     </footer>
 
-    <!-- 
-      hai there again!
-      as you see I do some light analytics, it's all self-hosted and doesn't collect any more
-      data than regular logging.
-      read more about it at plausible.io
-      ~ 🦊
-    -->
-    <script is:inline async="" defer="" data-api="https://e.skyeto.com/api/event" data-domain="skyeto.com" src="https://blog.cdn.skyeto.net/p0.js"></script>
+    <!--<div class="container mt-[1rem] py-[1rem] px-[.5rem] rounded-sm border border-sky-500 shadow bg-sky-800 text-sky-100 shadow">
+      <p class="text-sm"><b>Note:</b> Currently migrating away from Ghost. Expect a tiny bit of wonkyness!
+      I'm doing it in the open, follow along on <a class="hover:underline font-bold" href="https://github.com/skyeto/blog">github.com/skyeto/blog</a>.</p>
+    </div>-->
 	</body>
 </html>
 <style is:global>
@@ -98,7 +99,7 @@ const { title, description, pubDate } = Astro.props;
 		--accent: 124, 58, 237;
     --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
 
-    --background: #212227;
+    --background: rgb(10,10,10);
     --body: #F7F6F3;
     --muted: #DEDBCF;
 	}
@@ -106,7 +107,7 @@ const { title, description, pubDate } = Astro.props;
   html {
     font-family: "Roboto Slab", system-ui, sans-serif;
     background-color: var(--background);
-    background: linear-gradient(339deg, rgba(28,28,32,1) 0%, rgba(42,42,48,1) 100%);
+    /*background: linear-gradient(339deg, rgba(28,28,32,1) 0%, rgba(42,42,48,1) 100%);*/
     background-attachment: fixed;
     background-repeat: no-repeat;
 
@@ -115,14 +116,17 @@ const { title, description, pubDate } = Astro.props;
 
   h1,h2,h3,h4 { font-family: "Disket Mono Bold", monospace; }
   h1 {
-    @apply text-2xl mt-[2rem] mb-[1rem];
+    @apply text-2xl mt-[1rem] mb-[1rem];
+    color: rgb(227,227,227);
+    mix-blend-mode: luminosity;
+    background-blend-mode: luminosity;
 
-    color: #00b5e2;
-    background-image: linear-gradient(90deg, rgba(0,181,226,1) 0%, rgba(68,224,255,1) 100%); 
+    /*color: #00b5e2;
+    background-image: linear-gradient(90deg, rgba(0,181,226,1) 0%, rgba(68,224,255,1) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 100%;
-    background-position: 0%;
+    background-position: 0%;*/
   }
 
   h2 {
@@ -173,4 +177,20 @@ const { title, description, pubDate } = Astro.props;
     font-family: "Disket Mono", monospace;
     font-size: 10px;
   }
+
+@keyframes bouncy {
+0% {
+transform: translateY(0rem) scale(1.0);
+opacity: 0.9;
+}
+50% {
+transform: translateY(.25rem) scale(0.9);
+opacity: 1;
+}
+}
+
+.rainbow {
+opacity: 0.9;
+animation: 10s ease-in-out 0s infinite bouncy;
+}
 </style>
