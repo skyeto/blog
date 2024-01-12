@@ -12,8 +12,8 @@ const posts = await Astro.glob("./p/*.{md,mdx}");
 
   <Navbar />
 
-  <main class="container justify-center" transition:name="content" transition:type="slide">
-    <h1 transition:name="title">hi there!</h1>
+    <h1 transition:name="title" transition:animate="fade" class="px-[2rem] container justify-center gap-2 bg-blend-luminosity mix-blend-luminosity">hi there!</h1>
+  <main class="container justify-center gap-2 text-base" transition:name="content">
     <p>I'm <span class="italic">/skaɪ-tuː/</span>. This blog is mostly a rambly collection of posts on different topics.</p>
 
     <p>

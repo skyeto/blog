@@ -10,8 +10,8 @@ const { frontmatter } = Astro.props;
     description={frontmatter.description}
     pubDate={frontmatter.pubDate}>
   <Navbar />
+    <h1 class="px-[2rem] container justify-center gap-2 bg-blend-luminosity mix-blend-luminosity" transition:name="title">{ frontmatter.title }</h1>
   <article class="container justify-center gap-2 text-base" transition:name="content">
-    <h1 transition:name="title">{ frontmatter.title }</h1>
     <p class="pubdate">published { frontmatter.pubDate.slice(0, 10) }</p>
     <p class="ingress">{ frontmatter.description }</p>
     <slot />
