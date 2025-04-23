@@ -1,149 +1,535 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
-import Navbar from '../components/Navbar.astro';
+import { Image } from "astro:assets";
+import Default from "../layouts/Default.astro";
+import Card from "../components/Card.astro";
+import Chat from "@components/Chat.astro";
+import profilePicture from "../../public/cropped_square_2.png";
 
-const posts = await Astro.glob("./p/*.{md,mdx}");
+import { getCollection, render } from "astro:content";
+
+const posts = await getCollection("blog");
 ---
 
-<Layout
-  title="Ramblings of a Fox"
-  description="A rambly collection of posts with everything from CTF writeups, bad ideas, bikepacking excursions, and more.">
+<Default title="Ramblings of a fox" description="A rambly collection of posts with everything from CTF writeups, bad ideas, bikepacking excursions, and more." navbar={false} showBacklink={false}>
+  <div
+    class="paper col-start-3 row-start-2 m-[-1rem] mt-10 rounded-xs p-[1rem]"
+  >
+    <div class="border border-blue-500/50 shadow shadow-blue-500/10 bg-blue-800/25 rounded-sm p-2 mb-5"><p class="!text-xs !mb-0">Reworking everything, so bringing up interactive stuff shortly and fixing mobile support!</p></div>
 
-  <Navbar />
-
-    <h1 transition:name="title" transition:animate="fade" class="px-[2rem] container justify-center gap-2 bg-blend-luminosity mix-blend-luminosity">hi there!</h1>
-  <main class="container justify-center gap-2 text-base" transition:name="content">
-    <p>I'm <span class="italic">/skaɪ-tuː/</span>. This blog is mostly a rambly collection of posts on different topics.</p>
-
-    <p>
-      You can also find me in a couple other places on the internet:<br>
-      <div class="w-full text-base text-center">
-        <a href="https://twitter.com/skyetothefox" class="hover:text-cyan-300">twitter</a> |
-        <a href="https://github.com/skyeto" class="hover:text-gray-300">github</a> |
-        <a href="https://keybase.io/skyeto" class="hover:text-orange-300">keybase</a>
+    <p class="mb-2">--- BEGIN PRINT ---</p>
+    <div class="mb-3 grid grid-cols-4 gap-3">
+      <div>
+        <Image
+          class="rounded-xs border border-neutral-100/25 shadow transition hover:border-cyan-500/75"
+          alt="TODO"
+          width="200px"
+          height="200px"
+          src={profilePicture}
+        />
       </div>
-    </p>
+      <div class="align-center col-span-3 h-full">
+        <ul>
+          <li class="opacity-25">░▒▓░▓▒▓░▓░▒ ID 244CQ237</li>
+          <li>SUBJECT: skye<span class="opacity-25">to</span></li>
+          <li>PRONOUNS: they/she/it</li>
+          <li>
+            <span class="transfem">transfemme</span>
+            <span class="enby">enby</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <p>
+        <strong>meowdy!</strong> welcome to my little corner on the internet. i have
+        a passion for all things computery but especially networking, streaming,
+        and anything sysadmin.
+      </p>
+
+      <p>
+        whenever i can i love playing ctf's, both with others and by myself,
+        although lately it has been a bit more infrequent.
+      </p>
+
+      <p>
+        besides computery things i was part of founding and help run the world
+        of warcraft community blåhaj group. i also am an avid bikepacker.
+      </p>
+
+      <p>
+        lastly, am currently looking for a job, i'm nominally a network engineer
+        / sysadmin, shoot me an email to mail @ my domain and i'll send over my
+        CV :)
+      </p>
+
+      <div>
+        <h2>## quotes</h2>
+
+        <ul class="quotes">
+          <li>
+            x skyeto you look more normal than I expected. actually i'm gonna
+            apply that to the lot of ya - b0bb
+          </li>
+          <li>x stadlers are the femboys of trains fight me - skye</li>
+        </ul>
+      </div>
+    </div>
 
 
-    <h2>posts</h2>
-    <ul class="posts">
-      {posts.sort((a,b) => { return Date.parse(b.frontmatter.pubDate) - Date.parse(a.frontmatter.pubDate); }).filter((post) => post.frontmatter.publish === true || post.frontmatter.publish === undefined).map((post) =>
-      <li>
-        <a class="block w-full" href={post.url}>
-          <div class="inline-block">{post.frontmatter.title}</div>
-          <div class="inline-block monospace float-right">[{post.frontmatter.pubDate.slice(0,10)}]</div>
-        </a>
-      </li>)}
-    </ul>
-  </main>
+    <div class="mb-5 mt-12">
+      <p>--- RECENT POSTS ---</p>
 
-  <!--<canvas id="bg-canvas"></canvas>-->
-</Layout>
+      <div>
+        {
+          posts.sort((a,b) => { return Date.parse(b.data.pubDate) - Date.parse(a.data.pubDate); }).filter((post) => post.data.publish === true || post.data.publish === undefined).map((post) =>
+            <a href=`/p/${post.id}`>
+              <div class="inline-block w-100">
+                > {post.data.title}
+              </div>
+            </a>
+          )
+        }
+      </div>
+    </div>
+    
+    <p>--- END PRINT ---</p>
 
-<style>
-  .container {
-    @apply px-[2rem];
-  }
+    <div class="buttons mt-40 text-center">
+      <a href="https://archlinux.org"
+        ><Image
+          width="88"
+          height="31"
+          src="/88x31/arch.png"
+          alt="arch linux 88x31 button"
+        /></a
+      ><a href="https://firefox.com"
+        ><Image
+          width="88"
+          height="31"
+          img
+          src="/88x31/firefox.png"
+          alt="firefox 88x31 button"
+        /></a
+      ><Image
+        width="88"
+        height="31"
+        src="/88x31/transrights.png"
+        alt="trans rights button"
+      /><Image
+        width="88"
+        height="31"
+        src="/88x31/flag.png"
+        alt="trans flag button"
+      /><Image
+        width="88"
+        height="31"
+        src="/88x31/emacs2.gif"
+        alt="created with emacs button"
+      />
+    </div>
+  </div>
 
-  .posts {
-    font-family: "Disket Mono Bold",  monospace;
-  }
+  <div class="col-start-4 row-start-2">
+    <div class="radio mt-15 flex h-fit w-full rounded shadow shadow-lg">
+      <div
+        class="w-full min-w-full rounded-l border-b-4 border-neutral-500 bg-neutral-100 px-2 py-2"
+      >
+        <div class="mx-1 mt-1 flex h-6 w-full pr-2">
+          <div
+            class="play w-6 flex-none grow-0 cursor-pointer rounded-l border-b-2 border-amber-600/75 border-t-amber-600 bg-amber-500 text-center text-black shadow-xs transition-all duration-10 select-none active:border-t-2 active:border-b-0 active:shadow-none"
+          >
+            <span
+              class="inset-shadow-xl h-5 w-5 text-white/90 inset-shadow-amber-900"
+              >►
+            </span>
+          </div>
+          <div
+            class="status inset-shadow w-content flex grow-1 overflow-hidden rounded-r border-b border-b-neutral-800 bg-linear-to-b from-neutral-900 to-neutral-950 px-1 align-middle text-nowrap text-clip inset-shadow-xs shadow-xs inset-shadow-neutral-500/75"
+          >
+            <div class="marquee gap-4 align-middle text-clip select-none">
+              <span>press play</span><span aria-hidden="true">press play</span>
+            </div>
+          </div>
+        </div>
 
-  .posts li a:hover {
-    @apply text-[#00b5e2] transition;
-  }
+        <div class="dotgrid mx-2 mt-1 p-2"></div>
 
-  ol { counter-reset: ctr -1; }
-  ol li { counter-increment: ctr; }
-  ol li::before {
-    @apply mr-[.5rem];
-    content: "[" counter(ctr) "]";
-  }
+        <div
+          class="live mt-0 w-full pr-2 text-right text-neutral-900 select-none"
+        >
+          <span class="my-auto inline-block h-1 w-1 bg-red-400"></span> OFFLINE
+        </div>
 
-  #bg-canvas {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    z-index: -1;
-  }
-</style>
+        <audio class="player"></audio>
+      </div>
 
-<!--
-<script>
-  import * as THREE from "three";
-  import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-  import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-  import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-  import { RenderPixelatedPass } from "three/addons/postprocessing/RenderPixelatedPass.js";
-  import { FilmPass } from "three/addons/postprocessing/FilmPass.js";
-  import { AsciiEffect } from "three/addons/effects/AsciiEffect.js";
-  import { TrackballControls } from "three/addons/controls/TrackballControls.js";
+      <div class="volume flex flex-col select-none">
+        <div
+          class="volume-up h-5 w-5 shrink-0 grow-0 cursor-pointer rounded-tr bg-neutral-400 text-center text-xs text-neutral-600 transition-all duration-10 active:mt-1 active:h-4 active:inset-shadow-xs"
+        >
+          ▲
+        </div>
+        <div class="h-full w-5 bg-neutral-200">
+          <div class="volume-grid h-full"></div>
+        </div>
+        <div
+          class="volume-down h-5 w-5 flex-0 cursor-pointer rounded-br border-b-4 border-neutral-600 border-t-neutral-500 bg-neutral-400 text-center align-middle text-xs text-neutral-600 transition-all duration-10 active:border-t-4 active:border-b-[1px]"
+        >
+          ▼
+        </div>
+      </div>
 
-  const clock = new THREE.Clock();
+      <div class="stats"></div>
+    </div>
 
-  const canvas = document.querySelector("#bg-canvas");
-  const renderer = new THREE.WebGLRenderer({antialias: true, canvas, alpha: true, premultipliedAlpha: false});
-  renderer.setSize(window.innerWidth, window.innerHeight);
+    <Chat />
+  </div>
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 30);
-  camera.position.z = 20;
+  <style>
+    .paper {
+      background: var(--background-color);
+    }
 
+    .buttons * {
+      display: inline;
+    }
 
-  const fLight = new THREE.PointLight(0xff0000, 0.7, 20);
-  fLight.position.set(-5, 0, 5);
-  scene.add(fLight);
+    p,
+    ul,
+    li,
+    div {
+      font-family: departure-mono, var(--text-font-family);
+      /* font-size: 1.14rem; */
+      font-size: 0.873rem;
+      line-height: 1.34;
+      font-weight: 400;
 
-  const bLight = new THREE.PointLight(0x00ff00, 3, 20);
-  bLight.position.set(-5, 5, -5);
-  scene.add(bLight);
+      font-feature-settings: normal;
+      font-variant-ligatures: common-ligatures;
 
-  const kLight = new THREE.PointLight(0x0000ff, 2, 20);
-  kLight.position.set(5, 0, 0);
-  scene.add(kLight);
+      /* text-align: justify;
+    text-align-last: left;*/
+      hyphens: auto;
+      hyphenate-limit-lines: 2;
 
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
 
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
+    p,
+    ul,
+    ol {
+      display: block;
+      margin-bottom: 1rem;
+    }
 
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: departure-mono, var(--text-font-family);
+      font-weight: 600;
+      margin-top: 1rem;
+    }
 
-  // Apply shaders
-  const composer = new EffectComposer(renderer);
-  const renderPass = new RenderPass(scene, camera);
-  composer.addPass(renderPass);
-  const pixelPass = new RenderPixelatedPass(9, scene, camera);
-  composer.addPass(pixelPass);
-  const unrealBloomPass = new UnrealBloomPass();
-  composer.addPass(unrealBloomPass);
-  const filmPass = new FilmPass(0.35, 0.025, 648, false);
-  composer.addPass(filmPass);
+    .transfem {
+      background-image: linear-gradient(
+        to left,
+        #32bcf6 2ch,
+        #f7b0c4 2ch 4ch,
+        #fff 4ch 6ch,
+        #f7b0c4 6ch 8ch,
+        #32bcf6 8ch 10ch
+      ) !important;
+      background-position: 0 100%;
+      -webkit-background-clip: text;
+      color: rgba(0, 0, 0, 0);
+    }
 
-  const effect = new AsciiEffect(renderer, " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@", { invert: false });
-  effect.setSize(window.innerWidth, window.innerHeight);
-  effect.domElement.style.color = "rgb(74, 210, 255)";
-  effect.domElement.style.backgroundColor = "transparent";
-  effect.domElement.style.fontFamily = "Disket Mono";
-  document.body.appendChild( effect.domElement );
+    .enby {
+      background-image: linear-gradient(
+        to left,
+        #fcf434 1ch,
+        #ffffff 1ch 2ch,
+        #9c59d1 2ch 3ch,
+        #9c9c9c 3ch 4ch
+      ) !important;
+      background-position: 0 100%;
+      -webkit-background-clip: text;
+      color: rgba(0, 0, 0, 0);
+    }
 
-  const controls = new TrackballControls( camera, effect.domElement );
+    .quotes li {
+      font-size: 0.833rem;
+    }
 
-  const render = () => {
-    requestAnimationFrame(render);
+    .radio .live {
+      font-size: 0.633rem;
+    }
 
-    const d = clock.getDelta();
+    .radio .status {
+      overflow: hidden;
+    }
 
-    cube.rotation.x += 0.15*d;
-    cube.rotation.y += 0.15*d;
-    cube.rotation.z += 0.05*d;
-    //renderer.render(scene, camera);
-    //composer.render();
-    controls.update();
-    effect.render(scene, camera);
-  };
-  render();
-</script>
--->
+    .radio .status .marquee {
+      line-height: 2;
+      font-size: 0.75rem;
+      font-weight: 700;
+      height: 100%;
+      text-shadow: 0 0 2px rgba(255, 255, 255, 0.25);
+    }
+
+    .marquee span {
+      margin-right: 10rem;
+    }
+
+    .radio .status:hover .marquee {
+      animation: marquee 10s linear infinite;
+      text-overflow: none;
+    }
+
+    .radio .dotgrid {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      grid-gap: 6px;
+    }
+
+    .dotgrid :global(.dot) {
+      position: relative;
+      width: 8px;
+      height: 8px;
+      border-radius: 42%;
+      background-color: var(--color-neutral-700);
+      transition: 0.2s background-color;
+      box-shadow: inset 0 2px 2px var(--tw-inset-shadow-color, #0000000d);
+    }
+
+    .radio .volume-grid {
+      display: grid;
+      grid-template-columns: repeat(1fr, 10);
+      grid-gap: 6px;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .radio .volume-grid :global(.dot) {
+      position: relative;
+      width: 5px;
+      height: 5px;
+      border-radius: 42%;
+      background-color: rgba(180, 180, 180, 0.5);
+      transition: 0.2s background-color;
+      box-shadow: inset 0 1px 1px var(--tw-inset-shadow-color, #0000000d);
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+
+  <script>
+    const grid = document.querySelector(".dotgrid");
+    for (let i = 0; i < 16 * 7; i++) {
+      const dot = document.createElement("div");
+      dot.classList.add("dot");
+      grid.appendChild(dot);
+    }
+
+    const volumegrid = document.querySelector(".volume-grid");
+    for (let i = 0; i < 10; i++) {
+      const dot = document.createElement("div");
+      dot.classList.add("dot");
+      volumegrid.appendChild(dot);
+    }
+
+    let waiting = setInterval(() => {
+      let dots = grid.querySelectorAll(".dot");
+
+      for (let i = 0; i < dots.length; i++) {
+        const val = Math.random();
+        if (val > 0.85) {
+          dots[i].style = "background: var(--color-neutral-300);";
+        } else if (val > 0.25) {
+          dots[i].style = "background: var(--color-neutral-600);";
+        } else {
+          dots[i].style = "background: var(--color-neutral-500);";
+        }
+      }
+    }, 1500);
+
+    const status = document.querySelector(".radio .marquee");
+    const play = document.querySelector(".radio .play");
+    const player = document.querySelector(".radio .player");
+    let vol = localStorage.getItem("playerVolume");
+    let analyser;
+    let bufferLength;
+    let dataArray;
+
+    play.addEventListener("click", async (e) => {
+      if (!player.paused) {
+        player.pause();
+        return;
+      }
+
+      if (player.paused && player.src != "") {
+        // player.fastSeek(0);
+        player.currentTime = player.duration;
+        player.play();
+        return;
+      }
+
+      setStatus("loading hlsjs...");
+      const { Hls } = await import("hls.js");
+      console.log(Hls);
+
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          emeEnabled: true,
+          debug: false,
+          enableSoftwareAES: false,
+          //liveMaxLatencyDurationCount: 10,
+        });
+        console.log(hls);
+
+        hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+          console.log("player attached");
+        });
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+          console.log(
+            "manifest loaded, found " + data.levels.length + " quality level"
+          );
+          setStatus("playing...");
+        });
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          console.log("error", data.type, data.details, data.fatal);
+        });
+        hls.loadSource("https://data.skyeto.net/radio/audio_master.m3u8");
+
+        hls.attachMedia(player);
+        player.play();
+
+        console.log(player);
+        const audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        const source = audioCtx.createMediaElementSource(player);
+        source.connect(analyser);
+        source.connect(audioCtx.destination);
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
+        clearInterval(waiting);
+
+        if (vol == undefined) {
+          localStorage.setItem("playerVolume", "10");
+          vol = 10;
+        } else {
+          vol = Number.parseInt(vol);
+        }
+
+        setVolume(vol / 10);
+        setInterval(audioAnalyser, 100);
+      } else {
+        setStatus("ERR: Browser doesn't support live streaming :(");
+      }
+    });
+
+    document
+      .querySelector(".radio .volume-up")
+      .addEventListener("click", () => {
+        if (vol >= 10) return;
+        if (player.paused) return;
+
+        vol += 1;
+        localStorage.setItem("playerVolume", vol);
+        setVolume(vol / 10);
+      });
+
+    document
+      .querySelector(".radio .volume-down")
+      .addEventListener("click", () => {
+        if (vol <= 0) return;
+        if (player.paused) return;
+
+        vol -= 1;
+        localStorage.setItem("playerVolume", vol);
+        setVolume(vol / 10);
+      });
+
+    function setHeight(index, height) {
+      for (let i = index; i < 16 * 7; i += 16) {
+        if (i < (7 - height) * 16) {
+          grid.children[i].style = "background: var(--color-neutral-700);";
+        } else {
+          grid.children[i].style =
+            "background: var(--color-amber-400); box-shadow: 0 0 5px color-mix(in srgb, var(--color-amber-400) 25%, transparent);";
+        }
+      }
+    }
+    console.log(setHeight);
+
+    let rollingAverage = [];
+    for (let i = 0; i < 64; i++) {
+      rollingAverage.push(500); // slow down the initial spike :3
+    }
+
+    function audioAnalyser() {
+      let dots = grid.querySelectorAll(".dot");
+      let totalVolume = 0;
+      const currentAverage =
+        rollingAverage.reduceRight((acc, val, idx) => {
+          return acc + val * (idx + 1);
+        }, 0) /
+          ((64 * (64 + 1)) / 2) +
+        30;
+
+      analyser.getByteFrequencyData(dataArray);
+
+      for (let i = 10; i < 16 * 2 + 10; i += 2) {
+        let barHeight = Math.floor((dataArray[i] / currentAverage) * 7);
+        barHeight = barHeight > 7 ? 7 : barHeight;
+        setHeight((i - 10) / 2, barHeight);
+
+        totalVolume += dataArray[i];
+      }
+      rollingAverage.push(totalVolume / 16);
+      rollingAverage.shift();
+    }
+
+    console.log(player);
+    function setVolume(volume) {
+      if (volume > 1 || volume < 0) {
+        throw new Error("volume out of range");
+      }
+      player.volume = volume;
+
+      for (let i = 1; i <= 10; i++) {
+        let dot = volumegrid.children[10 - i];
+
+        if (volume * 10 < i) {
+          dot.style = "background: var(--color-neutral-600)";
+        } else {
+          dot.style = "background: var(--color-amber-500)";
+        }
+      }
+    }
+    console.log(setVolume);
+
+    function setStatus(s) {
+      status.innerHTML = `<span style="margin-right: 10rem;">${s}</span><span aria-hidden="true">${s}</span>`;
+    }
+
+    import { sessionStore } from "@store/session_store.js";
+    sessionStore.get();
+
+    async function connectSocket() {}
+    connectSocket();
+  </script>
+</Default>

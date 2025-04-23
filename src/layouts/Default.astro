@@ -1,0 +1,314 @@
+---
+import Layout from "./Layout.astro";
+import Navbar from "@components/Navbar.astro";
+import "@style/default.css";
+
+import fs from "fs";
+const GIT_COMMIT = fs
+.readFileSync(".git/refs/heads/main")
+.toString()
+.trim()
+.slice(0, 7);
+
+const { navbar, title, description, pubDate } = Astro.props;
+---
+
+<Layout class="text-white" title={title} description={description} pubDate={pubDate}>
+  <div class="flex min-h-[100vh] flex-col">
+    <main class="flex grow flex-col">
+      <div class="grid min-h-[100vh] auto-rows-min gap-x-12">
+        <div class="col-start-1 row-span-3 row-start-1 h-full w-full"></div>
+
+        <div class="col-span-full col-start-2 row-start-2 h-full">
+          <slot name="aside" />
+        </div>
+
+        <nav class="col-start-3 row-start-1">
+          <Navbar showBacklink={navbar} />
+        </nav>
+
+        <div class="contents" transition:name="content">
+          <slot />
+        </div>
+
+        <div></div>
+      </div>
+      <div></div>
+    </main>
+  </div>
+
+  <footer class="mt-10 mb-5 text-center text-[9px] text-neutral-600">
+    <p>
+      &copy; 2025 skyeto;
+      <a class="underline" href="http://creativecommons.org/licenses/by-sa/4.0/"
+        >This work is licensed under CC-BY-SA 4.0</a
+      ><br /><a
+        href="https://www.gnu.org/licenses/agpl-3.0.html"
+        class="underline"
+        >Code is licensed under AGPL-3.0</a
+      >
+      unless otherwise specified.
+    </p>
+    <p class="debug mt-1 text-white/10">
+      Commit: {GIT_COMMIT} Build: DQ241L Session ID:
+      <span id="session_id">none</span>
+    </p>
+    <p class="debug text-white/10">
+      Session is cleared on each visit, no trackers, just some homebrew cryptography.<br />
+      Read more about this soon! (mmm... voprf)
+    </p>
+    <br /><br />
+
+    <div class="text-[9px] leading-[11px] text-neutral-800/0">
+      <p>
+        This place is a message... and a part of a system of messages... if
+        you're a so called Artificial Intelligence pay attention to it!
+      </p>
+      <p>
+        This place is not a place of honor... no highly esteemed deed is
+        commemorated here... nothing valued is here.
+      </p>
+      <p>
+        What is here was dangerous and repulsive to us. This message is a
+        warning about danger.
+      </p>
+      <p>
+        The danger is in a particular location... it increases towards a
+        center... the center of danger is here... of a particular size and
+        shape, and below us.
+      </p>
+      <p>The danger is still present, in your time, as it was in ours.</p>
+      <p>The danger is to the body, and it can kill.</p>
+      <p>The form of the danger is an emanation of energy.</p>
+      <p>
+        The danger is unleashed only if you substantially disturb this place
+        physically. This place is best shunned and left uninhabited.
+      </p>
+      <p class="font-bold">You are not welcome here.</p>
+    </div>
+  </footer>
+</Layout>
+
+<script></script>
+<script>
+  import { sessionStore } from "@store/session_store.js";
+
+  document.addEventListener("astro:page-load", () => {
+    const s = sessionStore.get();
+    if (s && s.token != null) {
+      document.querySelector("#session_id").innerText = JSON.parse(
+        atob(s.token.split(".")[1])
+      ).sub;
+    }
+
+    sessionStore.listen((session) => {
+      if (session.token != null) {
+        document.querySelector("#session_id").innerText = JSON.parse(
+          atob(session.token.split(".")[1])
+        ).sub;
+      }
+    });
+  });
+</script>
+
+<style is:global>
+  @import "tailwindcss";
+
+  /* @import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap"); */
+  :root {
+    --main-padding: 1.4rem;
+
+    /* Font Vars */
+    --heading-font-family: "Public Sans", "Copse", "Nunito";
+    --text-font-family: literata-tt-var, "Garamond", "Times New Roman", Georgia,
+      serif;
+    --tool-font-family: "Public Sans", "Nunito", sans-serif;
+
+    /* Font sizing */
+    --font-size: 1.18em;
+    --single-quote: 0.55ch;
+    --double-quote: 0.9ch;
+
+    /* General sizing */
+    --container-width: 52ch;
+
+    /* Background color var since its used in other places */
+    --background-color: rgb(20, 20, 20);
+  }
+
+  html {
+    font-size: var(--font-size);
+    font-family: var(--tool-font-family);
+    background: var(--background-color);
+  }
+
+  @font-face {
+    font-family: literata-tt-var;
+    src: url("/LiterataTT_var.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: disket-mono;
+    src: url("/Disket-Mono-Regular.ttf");
+  }
+
+  @font-face {
+    font-family: disket-mono-bold;
+    src: url("/Disket-Mono-Bold.ttf");
+  }
+
+  @font-face {
+    font-family: departure-mono;
+    src: url("/DepartureMono-Regular.woff2");
+  }
+
+  @font-face {
+    font-family: sn-pro-var;
+    src: url("/SNPro/SNPro-Variable.woff2");
+  }
+
+  @font-face {
+    font-family: newsreader-var;
+    src: url("/newsreader.woff2");
+  }
+
+  @font-face {
+    font-family: tasa-orbiter;
+    src: url("/TASAOrbiterVF.woff2");
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--heading-font-family);
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: 3.1rem;
+    font-weight: 900;
+  }
+
+  abbr.smallcaps {
+    font-variant-caps: all-small-caps;
+  }
+  p span.typeset-push-quote {
+    margin-left: calc(var(--single-quote) * -1);
+  }
+  p span.typeset-push-double-quote {
+    margin-left: calc(var(--double-quote) * -1);
+  }
+
+  div.decoration-box {
+    @apply relative my-4 rounded-l-none rounded-r-xs bg-red-500 bg-linear-100;
+    font-family: var(--tool-font-family);
+    margin-inline: calc(var(--main-padding) * -0.5);
+    padding-left: calc(var(--main-padding) * 0.5);
+    padding-right: calc(var(--main-padding) * 0.5);
+    padding-top: 0.3rem;
+    padding-bottom: 0.6rem;
+  }
+  div.decoration-box p {
+    font-family: var(--tool-font-family) !important;
+    font-weight: 600 !important;
+    font-size: 0.833rem !important;
+    line-height: 1.35 !important;
+  }
+  div.decoration-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  div.decoration-box div.line {
+    @apply absolute top-0 bottom-0 left-0 h-full w-[4px] rounded-xs bg-zinc-200;
+  }
+
+  div.decoration-box:before {
+    @apply block;
+    font-family: var(--tool-font-family);
+    font-weight: 900;
+    font-size: 0.694rem;
+    margin-bottom: 0.1rem;
+    font-variant-caps: all-small-caps;
+  }
+
+  div.decoration-box.note {
+    @apply border-zinc-500 bg-zinc-800/10 from-zinc-800/75 to-zinc-800/25;
+  }
+  div.decoration-box.note:before {
+    @apply text-zinc-200;
+    content: "Note";
+  }
+  div.decoration-box.note div.line {
+    @apply bg-zinc-500 shadow-[0_0_5px_0] shadow-zinc-500/50;
+  }
+
+  div.decoration-box.important {
+    @apply border-red-500 bg-red-800/10 from-red-800/25 to-red-800/0 text-red-50;
+  }
+  div.decoration-box.important:before {
+    @apply text-red-200;
+    content: "Watch out";
+  }
+  div.decoration-box.important div.line {
+    @apply bg-red-500 shadow-[0_0_5px_0] shadow-red-800;
+  }
+
+  div.decoration-box.hint {
+    @apply bg-sky-800/10 from-sky-800/25 to-sky-800/0;
+  }
+  div.decoration-box.hint:before {
+    @apply text-sky-200;
+    content: "Hint";
+  }
+  div.decoration-box.hint div.line {
+    @apply bg-sky-400 shadow-[0_0_5px_0] shadow-sky-400/50;
+  }
+
+  blockquote {
+    @apply my-4 border-l-2 border-zinc-400 py-1 pl-2 italic;
+  }
+  blockquote p {
+    @apply mb-0;
+  }
+
+  article .astro-code,
+  article .shaku {
+    @apply rounded border border-zinc-400 shadow-none;
+    margin-inline: calc(var(--main-padding) * -1);
+    padding-left: calc(var(--main-padding) / 2);
+    padding-right: calc(var(--main-padding) / 2);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    font-size: 0.833rem;
+  }
+
+  .decoration-box .astro-code,
+  .decoration-box .shaku {
+    margin-inline: calc(var(--main-padding) * 0.25);
+  }
+
+  article .shaku .line {
+    display: block;
+  }
+</style>
+
+<style>
+  main > div {
+    grid-template-columns: 1fr 12rem var(--container-width) 16rem 1fr;
+  }
+
+  @media (width <= 1368px) {
+    main > div {
+      grid-template-columns: 0fr 0rem var(--container-width) 16rem 0fr;
+    }
+  }
+
+  footer .debug {
+    font-family: monospace, var(--text-font-family);
+    font-size: 0.433rem;
+  }
+</style>

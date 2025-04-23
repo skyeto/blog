@@ -1,0 +1,147 @@
+<northern-lights>
+  <div
+    transition:persist
+    id="container"
+    class="rainbow absolute -top-1/8 right-0 left-0 mx-auto flex h-1/2 max-w-4/5 blur-3xl"
+    style="z-index: -1;"
+  >
+  </div>
+  <div class="hidden h-64 grow-1 rotate-30"></div>
+
+  <button class="toggle">🌈</button>
+</northern-lights>
+
+<script>
+  class NorthernLights extends HTMLElement {
+    constructor() {
+      super();
+
+      this._internals = this.attachInternals();
+    }
+
+    // note to self: dont let sky write state machines for stuff like this...
+    get hidden() {
+      return this._internals.states.has("hidden");
+    }
+
+    set hidden(f) {
+      const container = this.querySelector(".rainbow");
+      if (f) {
+        this._internals.states.add("hidden");
+        this.animate = false;
+        localStorage.setItem("showRainbow", "false");
+      } else {
+        this._internals.states.delete("hidden");
+        localStorage.setItem("showRainbow", "true");
+      }
+    }
+
+    set loading(f) {
+      f
+        ? this._internals.states.add("loading")
+        : this._internals.states.delete("loading");
+    }
+
+    set animate(f) {
+      console.log(this._internals.states);
+      f
+        ? this._internals.states.add("animate")
+        : this._internals.states.delete("animate");
+    }
+
+    connectedCallback() {
+      if (localStorage.getItem("showRainbow") == undefined) {
+        localStorage.setItem("showRainbow", "false");
+      }
+
+      if (localStorage.getItem("showRainbow") == "false") {
+        this.hidden = true;
+        this.loading = true; // prevent animation on load
+      } else {
+        this.hidden = false;
+      }
+
+      this.querySelector("button").addEventListener("click", (e) => {
+        this.loading = false;
+        this.hidden = !this.hidden;
+      });
+
+      // let colors = ["#5BCEFA", "#F5A9B8", "#FFF", "#F5A9B8", "#5BCEFA"];
+      let colors = ["#cdb4db", "#ffc8dd", "#ffafcc", "#bde0fe", "#a2d2ff"];
+      const container = this.querySelector("div#container");
+
+      colors.forEach((color, idx) => {
+        const div = document.createElement("div");
+        div.className = `grow-1 h-64 rotate-10 segment`;
+        div.style.backgroundColor = color;
+
+        container.appendChild(div);
+      });
+    }
+  }
+
+  customElements.define("northern-lights", NorthernLights);
+</script>
+
+<style>
+  northern-lights:state(hidden) .rainbow {
+    opacity: 0;
+  }
+
+  :not(northern-lights:state(hidden)) .rainbow {
+    opacity: 1;
+  }
+
+  northern-lights:state(loading) .rainbow {
+    transition: none !important;
+  }
+
+  :not(northern-lights:state(animate)) :global(.segment) {
+    animation: 10s ease-in-out 0s infinite rainbow;
+  }
+
+  northern-lights .rainbow {
+    transition: opacity 1s;
+  }
+
+  .toggle {
+    position: absolute;
+
+    top: 0.5rem;
+    right: 1rem;
+    cursor: pointer;
+
+    font-size: 0.733rem;
+    text-shadow: 0 0 5px var(--color-pink-700);
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes rainbow {
+    0% {
+      transform: translateY(0rem) scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: translateY(0.25rem) scale(0.9);
+      opacity: 0.95;
+    }
+  }
+</style>

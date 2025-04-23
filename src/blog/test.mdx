@@ -1,0 +1,137 @@
+---
+layout: "@layouts/Post.astro"
+title: "Example Title"
+pubDate: 2024-12-30
+draft: false
+publish: false
+---
+
+[important] *hello!!*
+
+Also it would be terrible if it renames stuff here, like decoration and bg-red-500 or container
+
+Added some additional text [important] here about the document. Maybe some cool quote "like this" as well.
+
+[note] woop
+
+[hint] weehoo
+
+"Single level quotes" are also really cool and should be aligned properly when rehype has done its thing. Hopefully it does!
+
+'It should also work with these' she said trying to make sure stuff is aligned.
+
+Also... ellipses!
+
+Yjarni Sigurðardóttir spoke to the EFF from Iceland yesterday: "Light of my life, fire of my florins -- my sin, my soul. The tip of the tongue taking a trip to 118° 19' 43.5"."
+
+"She's faster than a 120' 4" whale." Piña co­ladas were widely consumed in Götterdämmerung from 1880–1912. For the low price of $20 / year from Ex­hi­bits A–E... Then the duplex came forward. "Thrice the tower, he mounted the round gun-rest, 'awaking' HTML. He can print a fixed num­ber of dots in a square inch (for in­stance, 600 × 600)."
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac massa tincidunt, porttitor est vitae, aliquet sapien. Maecenas et mattis enim. Duis pulvinar augue varius tellus tincidunt, eu commodo orci dapibus. Morbi vestibulum velit nec sagittis rutrum. Aenean cursus a enim vitae porta. Aenean cursus euismod neque. Nunc blandit libero id ante convallis finibus. Suspendisse varius massa ac arcu lobortis lobortis. In laoreet magna ex, non ultricies dolor venenatis eu. Nam orci turpis, pretium eget commodo at, varius id metus. 
+
+"Quotes should make great typography" someone probably said at some point. This is just an example paragraph so it's filled with meaningless drabble. Unfortunately for the reader, it has to be long enough to also make sense rhythmically with the reast of the body text. If this paragraph is too short it will look out of place.
+
+[important] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac massa tincidunt, porttitor est vitae, aliquet sapien. Maecenas et mattis enim. Duis pulvinar augue varius tellus tincidunt, eu commodo orci dapibus. 
+
+Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Duis faucibus molestie tincidunt. Suspendisse ultrices lectus sem, non volutpat neque eleifend nec. Nullam blandit quam at tristique pretium. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin dictum est eget nibh ultrices tempus. Phasellus ut felis orci. Vestibulum ac eleifend velit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed posuere tempor convallis. Vivamus dignissim nibh ut commodo aliquet. In et nisi vel neque vulputate facilisis id non quam. Pellentesque luctus, dui a sodales convallis, mi eros porta leo, ut ullamcorper sapien tellus vel nibh. Donec et consectetur magna.
+
+It is important to point out the differences in style. The Times chooses to use a lighter typeface for their body text, but a much bolder and weightier heading typeface. <abbr class="smallcaps">NASA</abbr> use modern faces, such as Helvetica.
+
+
+```c twoslash
+#include <stdio.h>
+
+int main(int argc, char **argv) {
+  printf("%d %d \n", 5, 4); // [!code --]
+// @log: Custom log message
+  printf("%d %d \n", 5, 4); // [!code ++]
+  printf("%d %d \n", 5, 4); // <--
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+//   ^?
+}
+```
+
+```c annotate
+#include <stdio.h>
+
+int main(int argc, char **argv) {
+// @dim start
+  printf("%d %d \n", 5, 4); // [!code --]
+  printf("%d %d \n", 5, 4); // [!code ++]
+// @dim end
+// @fold start
+  printf("%d %d \n", 5, 4); // [!code --]
+  printf("%d %d \n", 5, 4); // [!code ++]
+// @fold end
+  printf("%d %d \n", 5, 4); // <--
+  //            ~~~
+  //           [hmm]
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+  //      .....
+  //   [something]
+//   ^?
+
+// @diff + start
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+// @diff - start
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+  printf("%d %d \n", 5, 4); // @log: Custom log message
+// @diff - end
+}
+```
+
+## Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+
+Paragraphs should look like this!
+
+> Sometimes you wonder if venom is poisonous?
+
+[!important] 
+Add some code? 
+
+```css annotate
+Hopefully code works in this too?
+```
+
+and quotes
+
+> wise words
+
+some text before for spice
+
+# heading?
+
+and text after that
+[/important]
+
+some text afterwards of course!
+
+
+[important] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac massa tincidunt, porttitor est vitae, aliquet sapien. Maecenas et mattis enim. Duis pulvinar augue varius tellus tincidunt, eu commodo orci dapibus. 
+
+
+some more text
+
+[!important] 
+Add some code? 
+and text after that
+
+[/important]
+
+hello
+
+[!important] 
+
+Add some code?
+```js
+console.log("hello")
+```
+and text after that
+[/important]
+
+[hint] a last hint

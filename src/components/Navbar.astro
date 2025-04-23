@@ -1,49 +1,41 @@
 ---
-export interface Props {}
+import Lights from "./Lights.astro";
+
+const { showBacklink, navbar } = Astro.props;
 ---
 
-<div class="container">
-  <nav>
-    <ul>
-      <li><a href="/" rel="prefetch">[home]</a></li>
-      <li><a href="/" rel="prefetch">[about]</a></li>
-    </ul>
-    <div id="bttop" class="fixed flex align-center bottom-5 right-10 w-8 h-8 bg-gray-100/10 backdrop-blur text-white rounded border border-solid border-gray-100/25 shadow">
-      <svg xmlns="http://www.w3.org/2000/svg" class="m-auto" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5"/>
-      </svg>
+<div class="">
+  <Lights transition:persist />
+
+  {showBacklink !== false &&
+  <nav class="w-full">
+    <div class="">
+      <ul class="">
+        <li>
+          <a
+            class="text-neutral-100 opacity-50 mix-blend-luminosity"
+            href="/"
+            rel="prefetch"
+            >< back</a
+          >
+        </li>
+      </ul>
     </div>
   </nav>
+  }
 </div>
 
-<script is:inline>
-let show = false
-const scrollObserver = new IntersectionObserver((e) => {
-  console.log("scrolled!")
-  show = !show
-
-  if (show)
-}, {threshold: 0})
-
-scrollObserver.observe(document.querySelector("nav"))
-</script>
-
 <style>
-  nav > ul {
-    @apply list-none mx-[2rem] px-[0.5rem] py-[0.3rem] mt-[1rem] bg-gray-100/10 bg-blend-luminosity rounded shadow border border-solid border-gray-100/10;
+  nav ul {
+    width: var(--container-width);
+    margin-top: 0.75rem;
+    margin-bottom: 1.25rem;
   }
 
-  nav > ul > li {
-    @apply inline mr-[0.5rem];
-  }
-
-  nav a {
-    font-family: "Disket Mono Bold", monospace;
-    color: rgb(225,225,225);
-    mix-blend-mode: luminosity;
-  }
-
-  nav a:hover {
-    color: rgb(250,250,250);
+  nav ul li {
+    font-family: var(--tool-font-family);
+    font-size: 0.833rem;
+    font-weight: 700;
+    display: inline;
   }
 </style>

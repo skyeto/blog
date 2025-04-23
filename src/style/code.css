@@ -1,0 +1,237 @@
+.line {
+  display: inline;
+  padding-bottom: 0;
+}
+.diff {
+  display: inline-block;
+  width: 100%;
+}
+.diff.add {
+  background-color: #0505;
+}
+.diff.add:after {
+  @apply relative right-0;
+  content: "+";
+}
+.diff.remove {
+  background-color: #8005;
+}
+.diff:before {
+  position: absolute;
+  left: 40px;
+}
+.has-focused .line {
+  filter: blur(0.095rem);
+}
+.has-focused .focused {
+  filter: blur(0);
+}
+pre.shaku {
+  padding: 1rem 0;
+  border: 1px solid var(--color-line-3rd);
+  overflow-x: auto;
+  --padding-horizontal: 1rem;
+}
+
+pre.shaku .line {
+  min-height: 1em;
+  padding: 0 var(--padding-horizontal);
+  line-height: 1.5;
+  display: block;
+}
+
+pre.shaku.github-light .line.highlight {
+  background-color: var(
+    --color-shaku-highlight-light,
+    color-mix(in srgb, rgb(36, 155, 188) 15%, var(--color-bg-main))
+  );
+  display: block;
+}
+
+pre.shaku.github-dark .line.highlight {
+  background-color: var(
+    --color-shaku-highlight-dark,
+    color-mix(in srgb, rgb(239, 242, 242) 15%, var(--color-bg-main))
+  );
+  display: block;
+}
+
+pre.shaku .line.dim {
+  @apply transition;
+  filter: blur(2px) brightness(0.25);
+}
+pre.shaku:hover .line.dim {
+  filter: blur(0px) brightness(0.5);
+}
+
+pre.shaku .line.diff::before {
+  position: absolute;
+  margin-left: -1ch;
+}
+
+pre.shaku .line.diff-insert {
+  background-color: rgba(46, 160, 67, 0.2);
+}
+
+pre.shaku .line.diff-insert::before {
+  content: "+";
+}
+
+pre.shaku .line.diff-delete {
+  background-color: rgba(248, 81, 73, 0.2);
+}
+pre.shaku .line.diff-delete::before {
+  content: "-";
+}
+
+.shaku-callout {
+  background-color: var(--color-shaku-callout-light, #0685ce);
+  color: #fff;
+  padding: 0.5em 1ch;
+  position: relative;
+  margin: 0.5em 0 0 calc(var(--padding-horizontal) - 0.2ch);
+  display: inline-block;
+  border-radius: 2px;
+}
+
+pre.shaku.github-dark .shaku-callout {
+  background-color: var(--color-shaku-callout-dark, #0685ce);
+}
+
+.shaku-callout p {
+  margin: 0;
+}
+
+.shaku-callout p a {
+  color: #fff;
+}
+
+.shaku-callout-arrow {
+  width: 1ch;
+  height: 1ch;
+  display: inline-block;
+  background-color: var(--color-shaku-callout-light, #0685ce);
+  position: absolute;
+  top: -0.5ch;
+  transform: rotate(45deg);
+  margin-left: 0.2ch;
+}
+pre.shaku.github-dark .shaku-callout-arrow {
+  background-color: var(--color-shaku-callout-dark, #0685ce);
+}
+
+.shaku-underline {
+  padding: 0 1ch;
+  position: relative;
+  display: block;
+  border-radius: 3px;
+  color: var(--color-shaku-underline-light, red);
+  margin: 0 0 0 var(--padding-horizontal);
+  width: min-content;
+}
+pre.shaku.github-dark .shaku-underline {
+  color: var(--color-shaku-underline-dark, red);
+}
+
+.shaku-underline p {
+  margin: 0;
+}
+
+.shaku-underline a {
+  color: var(--color-shaku-underline-light, red);
+}
+pre.shaku.github-dark .shaku-underline a {
+  color: var(--color-shaku-underline-dark, red);
+}
+
+.shaku-underline-line {
+  line-height: 0;
+  top: 0.5em;
+  position: absolute;
+  text-decoration-line: overline;
+  text-decoration-color: var(--color-shaku-underline-light, red);
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+  text-decoration-thickness: 2px;
+}
+
+pre.shaku.github-dark .shaku-underline-line {
+  text-decoration-color: var(--color-shaku-underline-dark, red);
+}
+
+.shaku-underline-wavy > .shaku-underline-line {
+  text-decoration-style: wavy;
+  top: 0.7em;
+}
+
+.shaku-underline-solid > .shaku-underline-line {
+  text-decoration-style: solid;
+}
+
+.shaku-underline-dotted > .shaku-underline-line {
+  text-decoration-style: dotted;
+}
+
+.shaku-inline-highlight {
+  background-color: #fa05f230;
+  border-bottom: 2px solid rgb(235, 4, 158);
+  margin: 0 1px;
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.shaku-inline-highlight[data-id="r"] {
+  background-color: #fa05f230;
+  border-bottom: 2px solid rgb(235, 4, 158);
+}
+
+.shaku-inline-highlight[data-id="g"] {
+  background-color: #05faa930;
+  border-bottom: 2px solid green;
+}
+
+.shaku-inline-highlight[data-id="b"] {
+  background-color: #05a4fa30;
+  border-bottom: 2px solid rgb(9, 113, 239);
+}
+
+pre.shaku.github-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  pre.shaku.github-dark {
+    display: block;
+  }
+
+  pre.shaku.github-light {
+    display: none;
+  }
+}
+
+.shiki.shaku.github-dark {
+  background-color: #15202b !important;
+}
+.shiki.shaku.github-light {
+  background-color: #f8f8f8 !important;
+}
+
+.shaku-expand summary {
+  padding-left: var(--padding-horizontal);
+}
+.shaku-expand summary mark {
+  color: var(--color-text-sub);
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.shaku-expand summary::-webkit-details-marker,
+.shaku-expand summary::marker {
+  display: none;
+  content: "";
+}
+
+.shaku-expand[open] summary {
+  display: none;
+}

@@ -1,211 +1,62 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
-export interface Props {
+interface Props {
+  children: any;
   title: string;
-  onlyStyle: boolean;
+  description: string;
+  pubDate: string;
 }
 
-const { description, pubDate } = Astro.props;
-const frontmatter = Astro.props.frontmatter;
-const title = frontmatter ? frontmatter.title : Astro.props.title;
-const onlyStyle = frontmatter ? frontmatter.onlyStyle : false;
+const { title, description, pubDate, className, ...rest } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" href="https://blog.cdn.skyeto.net/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
     <title>skyeto | {title}</title>
 
     <!-- *sigh* SEO / Meta tags... -->
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}>
-    
-    {Astro.url.pathname == "/" && <meta name="description" content={description}>}
-
-    <meta property="og:site_name" content="Ramblings of a Fox">
-    <meta property="og:type" content="article">
-    <meta property="og:title" content={"skyeto | " + title}>
-    <meta property="og:description" content={description}>
-    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)}>
-
-    {pubDate && <meta property="article:published_time" content={pubDate}>}
-
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content={"skyeto | " + title}>
-    <meta name="twitter:description" content={description}>
-    <meta name="twitter:url" content={new URL(Astro.url.pathname, Astro.site)}>
-    <meta name="twitter:site" content="@skyetothefox">
-    <meta name="twitter:creator" content="@skyetothefox">
-    <meta name="twitter:dnt" content="on">
-
-    <!-- preload custom fonts -->
-    <link rel="preload" as="font" href="/fonts/RobotoSlab-Regular.woff2" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" as="font" href="/fonts/CascadiaCode.woff2" type="font/woff2" crossorigin="anonymous">
-
-    <ViewTransitions />
-	</head>
-  <body>
-    {!onlyStyle &&
-    <div class="rainbow flex flex-row w-3/4 lg:w-2/4 h-1/4 gap-6 blur-3xl absolute right-0 left-0 mx-auto -top-48" style="z-index: -1;">
-        <div class="w-full h-64 rotate-10 bg-amber-400"></div>
-        <div class="w-full h-64 rotate-10 bg-white"></div>
-        <div class="w-full h-64 rotate-10 bg-violet-400"></div>
-        <div class="w-full h-64 rotate-10 bg-zinc-400"></div>
-    </div>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    {
+      Astro.url.pathname == "/" && (
+        <meta name="description" content={description} />
+      )
     }
 
+    <meta property="og:site_name" content="Ramblings of a Fox" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={"skyeto | " + title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
 
-    <span class="">
+    {pubDate && <meta property="article:published_time" content={pubDate} />}
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={"skyeto | " + title} />
+    <meta name="twitter:description" content={description} />
+    <meta
+      name="twitter:url"
+      content={new URL(Astro.url.pathname, Astro.site)}
+    />
+    <meta name="twitter:site" content="@skyetothefox" />
+    <meta name="twitter:creator" content="@skyetothefox" />
+    <meta name="twitter:dnt" content="on" />
+    <ClientRouter fallback="swap" />
+
+    <!-- TODO!: REMOVE THESE! -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class={className} {...rest}>
     <slot />
-    </span>
-
-    {!onlyStyle &&
-    <footer class="container">
-      &copy; 2024 skyeto; <a style="text-decoration: underline dotted" href="http://creativecommons.org/licenses/by-sa/4.0/">This work is licensed under CC-BY-SA 4.0</a><br>
-    </footer>
-    }
-
-    <!--<div class="container mt-[1rem] py-[1rem] px-[.5rem] rounded-sm border border-sky-500 shadow bg-sky-800 text-sky-100 shadow">
-      <p class="text-sm"><b>Note:</b> Currently migrating away from Ghost. Expect a tiny bit of wonkyness!
-      I'm doing it in the open, follow along on <a class="hover:underline font-bold" href="https://github.com/skyeto/blog">github.com/skyeto/blog</a>.</p>
-    </div>-->
-	</body>
+  </body>
 </html>
-<style is:global>
-  @font-face {
-    font-family: "Cascadia Code";
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-    src: url("/fonts/CascadiaCode.woff2") format("woff2");
-  }
-
-  @font-face {
-    font-family: "Roboto Slab";
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-    src: url("/fonts/RobotoSlab-Regular.woff2") format("woff2");
-  }
-
-  @font-face {
-     font-family: "Disket Mono";
-     font-weight: 400;
-     font-style: normal;
-     font-display: swap;
-     src: url("/fonts/Disket-Mono-Regular.ttf");
-  }
-
-   @font-face {
-     font-family: "Disket Mono Bold";
-     font-weight: 700;
-     font-style: normal;
-     font-display: swap;
-     src: url("/fonts/Disket-Mono-Bold.ttf");
-   }
-
-	:root {
-		--accent: 124, 58, 237;
-    --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
-
-    --background: rgb(10,10,10);
-    --body: #F7F6F3;
-    --muted: #DEDBCF;
-	}
-  
-  html {
-    font-family: "Roboto Slab", system-ui, sans-serif;
-    background-color: var(--background);
-    /*background: linear-gradient(339deg, rgba(28,28,32,1) 0%, rgba(42,42,48,1) 100%);*/
-    background-attachment: scroll;
-    background-repeat: repeat;
-    background-size: 800px 800px;
-background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.dev/svgjs' viewBox='0 0 700 700' width='700' height='700' opacity='0.05'%3E%3Cdefs%3E%3Cfilter id='nnnoise-filter' x='-20%25' y='-20%25' width='140%25' height='140%25' filterUnits='objectBoundingBox' primitiveUnits='userSpaceOnUse' color-interpolation-filters='linearRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.125' numOctaves='4' seed='15' stitchTiles='stitch' x='0%25' y='0%25' width='100%25' height='100%25' result='turbulence'%3E%3C/feTurbulence%3E%3CfeSpecularLighting surfaceScale='15' specularConstant='1.3' specularExponent='20' lighting-color='%237957A8' x='0%25' y='0%25' width='100%25' height='100%25' in='turbulence' result='specularLighting'%3E%3CfeDistantLight azimuth='3' elevation='39'%3E%3C/feDistantLight%3E%3C/feSpecularLighting%3E%3CfeColorMatrix type='saturate' values='0' x='0%25' y='0%25' width='100%25' height='100%25' in='specularLighting' result='colormatrix'%3E%3C/feColorMatrix%3E%3C/filter%3E%3C/defs%3E%3Crect width='700' height='700' fill='transparent'%3E%3C/rect%3E%3Crect width='700' height='700' fill='%237957a8' filter='url(%23nnnoise-filter)'%3E%3C/rect%3E%3C/svg%3E");
-    color: var(--body);
-  }
-
-  h1,h2,h3,h4,h5 { font-family: "Disket Mono Bold", monospace; }
-  h1 {
-    @apply text-2xl mt-[1rem] mb-[1rem];
-    color: rgb(227,227,227);
-    mix-blend-mode: luminosity;
-    background-blend-mode: luminosity;
-
-
-    /*color: #00b5e2;
-    background-image: linear-gradient(90deg, rgba(0,181,226,1) 0%, rgba(68,224,255,1) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-size: 100%;
-    background-position: 0%;*/
-  }
-
-  h2 {
-    @apply text-[1.23rem] font-bold mb-[.5rem] mt-[2.5rem]; 
-  }
-  h3 {
-    @apply text-[1.16rem] mb-[.5rem] mt-[1.5rem];
-  }
-  h4 {}
-
-  p {
-    @apply text-base mb-[.5rem];
-    font-size: 1.09rem;
-    font-kerning: normal;
-    font-variant-ligatures: common-ligatures contextual;
-    font-feature-settings: "kern", "liga", "clig", "calt";
-
-    word-break: normal;
-    hyphens: auto;
-  }
-  
-  /* Container */
-  .container {
-    @apply max-w-2xl mb-4 mx-auto;
-  }
-
-  /* Images */
-  img {
-    @apply my-[2rem] relative -mx-[2rem] rounded shadow;
-    width: calc(100% + 4rem);
-    max-width: calc(100% + 4rem);
-  }
-
-  code {
-    font-variant-ligatures: normal;
-    font-feature-settings: "liga" on, "dlig" on;
-    letter-spacing: normal !important;
-    text-rendering: optimizeLegibility;
-    font-family: "Cascadia Code", Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-                 Bitstream Vera Sans Mono, Courier New, monospace;
-  }
-
-  pre.astro-code {
-    @apply text-sm leading-[1.15] py-[1rem] px-[.5rem] rounded border border-[#00b5e2] shadow-sm shadow-[#00b5e2];
-  }
-
-  footer {
-    @apply mt-[8rem] px-[2rem] opacity-20;
-    font-family: "Disket Mono", monospace;
-    font-size: 10px;
-  }
-
-  @keyframes bouncy {
-    0% {
-      transform: translateY(0rem) scale(1.0);
-      opacity: 0.9;
-    }
-    50% {
-      transform: translateY(.25rem) scale(0.9);
-      opacity: 1;
-    }
-  }
-
-  .rainbow {
-    opacity: 0.9;
-    animation: 10s ease-in-out 0s infinite bouncy;
-  }
-</style>

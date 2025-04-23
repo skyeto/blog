@@ -1,95 +1,168 @@
 ---
-import Layout from "./Layout.astro";
-import Navbar from "../components/Navbar.astro";
-const { frontmatter } = Astro.props;
+import Default from "./Default.astro";
+const { frontmatter, headings } = Astro.props;
 ---
 
+<Default
+  title={frontmatter.title}
+  description={frontmatter.description}
+  pubDate={frontmatter.pubDate}
+>
+  <article class="contents">
+    <div class="col-start-3 row-start-2 mt-5 mb-5">
+      <h1
+        id="top"
+        class="text-neutral-100 mix-blend-luminosity"
+        style="font-size: 1.9rem"
+      >
+        {frontmatter.title}
+      </h1>
+      <div class="date flex">
+        <div>{frontmatter.pubDate.slice(0,10)}</div>
+        <span class="mx-2 my-auto h-[2px] grow-1 bg-white/50"></span>
+        <div>by {frontmatter.author}</div>
+      </div>
+    </div>
 
-<Layout
-    title={frontmatter.title}
-    description={frontmatter.description}
-    pubDate={frontmatter.pubDate}>
-  <Navbar />
-    <h1 class="px-[2rem] container justify-center gap-2 bg-blend-luminosity mix-blend-luminosity" transition:name="title">{ frontmatter.title }</h1>
-  <article class="container justify-center gap-2 text-base" transition:name="content">
-    <p class="pubdate">published { frontmatter.pubDate.slice(0, 10) }</p>
-    <p class="ingress">{ frontmatter.description }</p>
-    <slot />
+    <div class="col-start-3 row-start-3">
+      <slot />
+    </div>
   </article>
-</Layout>
 
-<style is:global>
-  article > aside {
-    color: var(--muted) !important;
-    display: block;
-    float: left;
+  <div class="relative bottom-0 col-span-full col-start-4 row-start-3">
+    <div id="toc" class="sticky top-10">
+      <div class="title">
+        <a href="#top">{frontmatter.title}</a>
+      </div>
+      <div class="opacity-80 transition hover:opacity-100">
+        { headings.map((h) => { return (
+        <div id=`toc-${h.slug}` class=`d${h.depth}`>
+          <a
+            class="text-white transition hover:text-cyan-400"
+            href=`#${h.slug}`
+            >{h.text}</a
+          >
+        </div> )
+        ; }) }
+      </div>
+    </div>
+  </div>
+</Default>
+
+<script></script>
+
+<style>
+  article {
+    font-family: var(--text-font-family);
+    /* font-size: 1.14rem; */
+    font-size: 1rem;
+    line-height: 1.54;
+    font-weight: 400;
+
+    font-feature-settings: normal;
+    font-variant-ligatures: common-ligatures;
+
+    /* text-align: justify;
+    text-align-last: left;*/
+    hyphens: auto;
+    hyphenate-limit-lines: 2;
+  }
+
+  article :global(p, ul, ol) {
+    margin-bottom: 0.8rem;
+  }
+
+  article :global(ol) {
+    list-style-type: decimal;
+  }
+
+  article :global(ul) {
+    list-style-type: circle;
+  }
+
+  article :global(h1, h2, h3, h4, h5) {
+    font-family: var(--heading-font-family);
+  }
+
+  article :global(.heading-link > svg) {
+    display: inline;
+    width: 0.833rem;
+    height: 0.833rem;
+    opacity: 0.1;
+    margin-left: -1.15rem;
+    margin-right: 0.15rem;
+  }
+
+  article :global(h2) {
+    font-size: 1.44rem;
+    font-weight: 900;
+    margin-top: 2rem;
+  }
+
+  article :global(h3) {
+    margin-top: 1.5rem;
+    font-size: 1.15rem;
+  }
+
+  article :global(h4) {
+    font-size: 1.15rem;
+  }
+
+  article :global(aside) {
     position: absolute;
-
-    @apply ml-[-11rem] w-[12rem];
-
+    font-size: 0.833rem;
+    float: left;
+    display: block;
     clear: both;
-    margin-bottom: 1rem;
-
-    font-style: italic;
-    font-size: 0.97rem;
-    line-height: 1.3;
-    text-align: right;
+    margin-left: -14rem;
+    width: 12.5rem;
   }
 
-  article > .pubdate {
-    font-style: italic;
-    color: var(--muted);
+  @media (width <= 1368px) {
+    article :global(aside) {
+      position: relative;
+      font-size: 0.833rem;
+      display: block;
+      clear: none;
+      margin-left: 0rem;
+      margin-bottom: 0.8rem;
+      width: 100%;
+    }
   }
 
-  article > aside > p {
-    @apply text-sm;
-    hyphens: none;
-  }
-  article > aside > p:last-child {
-    @apply mb-[4rem];
+  article .date {
+    font-family: var(--tool-font-family);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.833rem !important;
   }
 
-  /* Lists */
-  article > p, article ol, article ul,  article>h1,article>h2,article>h3,article>h4, article>section>h2{
-    @apply px-8;
+  #toc .title {
+    font-size: 0.9rem;
+    font-weight: 900;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
   }
 
-  article > .ingress {
-    @apply mt-[1rem] mb-[2rem];
-    font-style: italic;
+  .d1,
+  .d2,
+  .d3,
+  .d4 {
+    font-size: 0.833rem;
+  }
+  .d1 {
   }
 
-  article > p {
-    margin-bottom: 1rem;
-  }
-  
-  article > pre.astro-code {
-    @apply my-[2rem] -mx-[3rem];
+  .d2 {
+    font-weight: 700;
   }
 
-  article > ul {
-    @apply list-disc mb-[1rem];
-    list-style-position: inside;
+  .d3 {
+    opacity: 0.9;
+    margin-left: 0.5rem;
   }
 
-  article > ol {
-    @apply list-decimal mb-[1rem];
-  }
-
-  article li {
-    @apply mb-[.5rem];
-  }
-
-  article a {
-    @apply hover:underline decoration-dashed text-[#00b5e2];
-  }
-
-  article > .footnotes {
-    @apply mt-[10rem];
-  }
-
-  article > .footnotes > ol li p:first-child:before {
-    content: "> ";
+  .d4 {
+    opacity: 0.9;
+    margin-left: 1rem;
   }
 </style>
-

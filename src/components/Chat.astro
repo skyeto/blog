@@ -1,0 +1,152 @@
+---
+---
+
+<div class="">
+  <div class="relative z-10 mt-5 rounded bg-neutral-100 px-1 py-1 text-black">
+    <div
+      class="chatbox flex h-60 w-full flex-col gap-1 rounded border-b border-b-neutral-800 bg-linear-to-b from-neutral-900 to-neutral-950 p-1 text-neutral-50 inset-shadow-xs shadow-xs inset-shadow-neutral-500/75"
+    >
+      <div
+        class="messagebox h-full snap-y snap-mandatory overflow-scroll overflow-x-hidden text-clip"
+        data-nosnippet
+      ></div>
+    </div>
+
+    <div class="mt-1 flex w-full gap-1">
+      <div class="grow">
+        <input
+          class="message-text w-full rounded border-b border-b-neutral-800 bg-linear-to-b from-neutral-900 to-neutral-950 p-1 text-neutral-50 inset-shadow-xs shadow-xs inset-shadow-neutral-500/75 focus:outline-none"
+          type="text"
+          placeholder="message"
+        />
+      </div>
+      <button
+        class="send-button w-8 rounded border-b-3 border-neutral-800 bg-neutral-500 text-white transition select-none active:mt-0.5 active:border-b-1"
+      >
+        &gt;
+      </button>
+    </div>
+
+    <div
+      class="logo mt-0.5 w-full pr-1 text-right text-neutral-950 select-none"
+    >
+      skyOS
+    </div>
+  </div>
+  <div class="relative z-0 -mt-1 h-2 w-full rounded-b bg-neutral-500"></div>
+</div>
+
+<style>
+  .chatbox {
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.25);
+    font-size: 0.733rem;
+  }
+
+  .logo {
+    font-size: 0.633rem;
+  }
+
+  .bold {
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  const messageView = document.querySelector(".messagebox");
+  messageView.scrollTop = messageView.scrollHeight;
+  function createMessage(nick, msg) {
+    let container = document.createElement("div");
+    let name = document.createElement("span");
+    let message = document.createElement("span");
+
+    name.innerText = `<${nick}> `;
+    message.innerText = msg;
+    container.classList = "line snap-center";
+    container.append(name);
+    container.append(message);
+
+    return container;
+  }
+
+  import { chat as chatStore, awaitChat } from "@store/chat.js";
+  const sendButton = document.querySelector(".send-button");
+  const messageBox = document.querySelector(".message-text");
+
+  const chatChannel = await awaitChat();
+  let nick = "";
+
+  chatChannel.join().receive("ok", (resp) => {
+    nick = resp.nick;
+    console.log(resp);
+
+    for (let i = 0; i < resp.messages.length; i++) {
+      messageView.append(
+        createMessage(resp.messages[i].nick, resp.messages[i].content)
+      );
+    }
+
+    messageView.scrollTop = messageView.scrollHeight;
+  });
+
+  chatChannel.on("message", (msg) => {
+    let scrollPos = Math.abs(
+      messageView.scrollHeight -
+        messageView.clientHeight -
+        messageView.scrollTop
+    );
+    messageView.append(createMessage(msg.nick, msg.content));
+    if (scrollPos <= 1) {
+      messageView.scrollTo({
+        top: messageView.scrollHeight,
+        behavior: "instant",
+      });
+    }
+  });
+
+  sendButton.addEventListener("click", () => {
+    sendMessage();
+  });
+
+  messageBox.addEventListener("keypress", (e) => {
+    if (e.key == "Enter") sendMessage();
+  });
+
+  function sendMessage() {
+    if (messageBox.value == "") return;
+
+    messageView.scrollTo({
+      top: messageView.scrollHeight,
+      behavior: "instant",
+    });
+    chatChannel
+      .push("message", { nick: nick, content: messageBox.value })
+      .receive("error", (err) => {
+        if (err.reason == "unsafe_message") {
+          messageView.append(
+            createMessage(
+              "system",
+              `*squint* whatchu writing there (${err.details})`
+            )
+          );
+          messageView.scrollTop = messageView.scrollHeight;
+        } else if (err.reason == "rate_limit") {
+          messageView.append(
+            createMessage(
+              "system",
+              `*squint* rate limited (wait ${err.details}s)`
+            )
+          );
+          messageView.scrollTop = messageView.scrollHeight;
+        } else {
+          messageView.append(
+            createMessage(
+              "system",
+              `*squint* something was bad (wait ${err.details}s)`
+            )
+          );
+          messageView.scrollTop = messageView.scrollHeight;
+        }
+      });
+    messageBox.value = "";
+  }
+</script>
