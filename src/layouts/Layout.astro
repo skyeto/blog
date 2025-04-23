@@ -2,19 +2,23 @@
 import { ViewTransitions } from "astro:transitions";
 
 export interface Props {
-	title: string;
+  title: string;
+  onlyStyle: boolean;
 }
 
-const { title, description, pubDate } = Astro.props;
+const { description, pubDate } = Astro.props;
+const frontmatter = Astro.props.frontmatter;
+const title = frontmatter ? frontmatter.title : Astro.props.title;
+const onlyStyle = frontmatter ? frontmatter.onlyStyle : false;
 ---
 
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
     <link rel="icon" href="https://blog.cdn.skyeto.net/favicon.svg">
-		<title>skyeto | {title}</title>
+    <title>skyeto | {title}</title>
 
     <!-- *sigh* SEO / Meta tags... -->
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}>
@@ -41,24 +45,28 @@ const { title, description, pubDate } = Astro.props;
     <link rel="preload" as="font" href="/fonts/RobotoSlab-Regular.woff2" type="font/woff2" crossorigin="anonymous">
     <link rel="preload" as="font" href="/fonts/CascadiaCode.woff2" type="font/woff2" crossorigin="anonymous">
 
-        <ViewTransitions />
+    <ViewTransitions />
 	</head>
   <body>
+    {!onlyStyle &&
     <div class="rainbow flex flex-row w-3/4 lg:w-2/4 h-1/4 gap-6 blur-3xl absolute right-0 left-0 mx-auto -top-48" style="z-index: -1;">
         <div class="w-full h-64 rotate-10 bg-amber-400"></div>
         <div class="w-full h-64 rotate-10 bg-white"></div>
         <div class="w-full h-64 rotate-10 bg-violet-400"></div>
         <div class="w-full h-64 rotate-10 bg-zinc-400"></div>
     </div>
+    }
 
 
     <span class="">
     <slot />
     </span>
 
+    {!onlyStyle &&
     <footer class="container">
       &copy; 2024 skyeto; <a style="text-decoration: underline dotted" href="http://creativecommons.org/licenses/by-sa/4.0/">This work is licensed under CC-BY-SA 4.0</a><br>
     </footer>
+    }
 
     <!--<div class="container mt-[1rem] py-[1rem] px-[.5rem] rounded-sm border border-sky-500 shadow bg-sky-800 text-sky-100 shadow">
       <p class="text-sm"><b>Note:</b> Currently migrating away from Ghost. Expect a tiny bit of wonkyness!
@@ -119,7 +127,7 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
     color: var(--body);
   }
 
-  h1,h2,h3,h4 { font-family: "Disket Mono Bold", monospace; }
+  h1,h2,h3,h4,h5 { font-family: "Disket Mono Bold", monospace; }
   h1 {
     @apply text-2xl mt-[1rem] mb-[1rem];
     color: rgb(227,227,227);
@@ -168,11 +176,11 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
 
   code {
     font-variant-ligatures: normal;
-    font-feature-settings:"liga" on, "dlig" on;
+    font-feature-settings: "liga" on, "dlig" on;
     letter-spacing: normal !important;
     text-rendering: optimizeLegibility;
     font-family: "Cascadia Code", Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-			Bitstream Vera Sans Mono, Courier New, monospace;
+                 Bitstream Vera Sans Mono, Courier New, monospace;
   }
 
   pre.astro-code {
@@ -185,19 +193,19 @@ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
     font-size: 10px;
   }
 
-@keyframes bouncy {
-0% {
-transform: translateY(0rem) scale(1.0);
-opacity: 0.9;
-}
-50% {
-transform: translateY(.25rem) scale(0.9);
-opacity: 1;
-}
-}
+  @keyframes bouncy {
+    0% {
+      transform: translateY(0rem) scale(1.0);
+      opacity: 0.9;
+    }
+    50% {
+      transform: translateY(.25rem) scale(0.9);
+      opacity: 1;
+    }
+  }
 
-.rainbow {
-opacity: 0.9;
-animation: 10s ease-in-out 0s infinite bouncy;
-}
+  .rainbow {
+    opacity: 0.9;
+    animation: 10s ease-in-out 0s infinite bouncy;
+  }
 </style>

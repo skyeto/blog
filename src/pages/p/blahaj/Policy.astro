@@ -1,0 +1,54 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+---
+
+<style is:global>
+html,body { @apply bg-zinc-100 text-zinc-950 }
+.container {
+  @apply ml-5 mt-2
+}
+
+h1 {
+  @apply text-black
+}
+
+ul { @apply clear-none }
+li { @apply clear-none }
+ol { @apply list-outside list-decimal }
+li > ol { @apply ml-1 }
+li > p { @apply mb-0 }
+ol {
+  list-style-type: none;
+  counter-reset: item;
+}
+
+#general-provisions { @apply mt-0 }
+
+a { @apply underline }
+
+ol > li {
+  display: table;
+  counter-increment: item;
+  @apply mb-0.5
+}
+
+ol > li:before {
+  content: counters(item, ".") ". ";
+  display: table-cell;
+  @apply pr-2 font-bold
+}
+
+li ol > li:before {
+  content: counters(item, ".") " ";
+}
+
+ol > li > p, ol > li {
+  @apply text-sm font-mono
+}
+</style>
+
+<Layout frontmatter={{onlyStyle: true}}>
+  <div class="container">
+    <slot/>
+  </div>
+</Layout>

@@ -8,12 +8,29 @@ export interface Props {}
       <li><a href="/" rel="prefetch">[home]</a></li>
       <li><a href="/" rel="prefetch">[about]</a></li>
     </ul>
+    <div id="bttop" class="fixed flex align-center bottom-5 right-10 w-8 h-8 bg-gray-100/10 backdrop-blur text-white rounded border border-solid border-gray-100/25 shadow">
+      <svg xmlns="http://www.w3.org/2000/svg" class="m-auto" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5"/>
+      </svg>
+    </div>
   </nav>
 </div>
 
+<script is:inline>
+let show = false
+const scrollObserver = new IntersectionObserver((e) => {
+  console.log("scrolled!")
+  show = !show
+
+  if (show)
+}, {threshold: 0})
+
+scrollObserver.observe(document.querySelector("nav"))
+</script>
+
 <style>
   nav > ul {
-    @apply list-none px-[2rem] mt-[1rem];
+    @apply list-none mx-[2rem] px-[0.5rem] py-[0.3rem] mt-[1rem] bg-gray-100/10 bg-blend-luminosity rounded shadow border border-solid border-gray-100/10;
   }
 
   nav > ul > li {
