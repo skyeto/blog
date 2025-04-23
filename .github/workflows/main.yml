@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        uses: withastro/action@v0
+        uses: withastro/action@v4
         with:
           package-manager: npm
       - name: Upload
