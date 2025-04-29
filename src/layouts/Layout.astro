@@ -47,14 +47,6 @@ const { title, description, pubDate, className, ...rest } = Astro.props;
     <meta name="twitter:creator" content="@skyetothefox" />
     <meta name="twitter:dnt" content="on" />
     <ClientRouter fallback="swap" />
-
-    <!-- TODO!: REMOVE THESE! -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body class={className} {...rest}>
     <slot />
