@@ -27,6 +27,7 @@ import postcssRename from "postcss-rename";
 import { fileURLToPath } from "node:url";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import cssnano from "cssnano";
+import { shield } from "@kindspells/astro-shield";
 
 let classMap = {};
 const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -52,6 +53,7 @@ export default defineConfig({
     },
   },
   integrations: [
+    shield({}),
     mdx({
       rehypePlugins: [
         rehypeTypeset,
