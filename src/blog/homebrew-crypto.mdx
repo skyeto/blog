@@ -45,7 +45,7 @@ Anubis[^anubis]) also use a <abbr class="smallcaps">PoW</abbr> verification
 
 
 
-## Virtually Oblivious Private Functions
+## Verifiable Oblivious Pseudorandom Functions
 
 ps. the footnotes are extensive
 
@@ -57,9 +57,9 @@ experiment to bypass their captcha bot-walls.
 [^pow]: Specifically, with the Privacy Pass challenge the server also issues a
     signed proof-of-work challenge to generate a number of Blake2b hashes. The
     browser loads a <abbr class="smallcaps">WASM</abbr> module (the *Web Crypto API* is too slow) and generates
-    hashes checking if their value is below the required threshold. Hashes are
+    hashes; checking if their value is below the required threshold. Hashes are
     generated sequentially, so only the index is later sent back for
-    verification.
+    verification to save some bytes.
     
     The implementation of a good proof-of-work system honestly deserves a lot of consideration. I do not think PoW is "good" engineering, I also don't think we have an alternative. Captcha's are provably broken, especially if they're static. Mandating the use of Javascript sucks as well, especially if it includes user tracking. Wasting CPU cycles on computing hashes is bad.
 
