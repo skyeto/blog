@@ -31,13 +31,30 @@ exchanged for a short-lived <abbr class="smallcaps">JWT</abbr>.
 alt="example request flow, GET request to token-challenge, POST requests to
 token-request and token-exchange"/>
 
+Before we continue, some important terminology, simplified from the IETF
+standard (I omit having a split origin, attester, and issuer):
+
+* **Client/browser** - where you're reading right now!
+* **Server/issuer** - verifies challenges, verifies redemption tokens, in this
+  case the API at `api.blog.skyeto.net`
+* **TokenChallenge**[^token_chall_struct] - sent from the server to the client with required metadata,
+  alongside the issuer public key. The client uses the public key to verify that
+  the issuer didn't use a special "bad" key, to for example de-anonymize the user.
+* **TokenRequest**[^token_req_struct]
+
 ### Token Challenge
 
 The standard only specifies the parts relevant to Privacy Passes, so its up to
-you when implementing to decide on the issuance criteria. This is where a system
-using PP's mainly differ. I use a proof-of-work challenge[^pow] just like
+you when implementing to decide on the issuance criteria. This is where a systems
+using PP's mainly differ. I use a proof-of-work challenge[^pow] scheme just like
 regular firewalls/proxies (e.g. 
-Anubis[^anubis]) also use a <abbr class="smallcaps">PoW</abbr> verification
+Anubis[^anubis] that also use a <abbr class="smallcaps">PoW</abbr> challenge).
+Kagi Search that recently started using a similar system issue tokens based on
+your regular account token, then authenticate searches using tokens.[^kagi]
+
+Instead of issuing a regular token the client (in this case, the browser)
+replies with the solution to the <abbr class="smallcaps">PoW</abbr> challenge,
+and 
 
 ### Token Request and Issuance
 
@@ -45,9 +62,17 @@ Anubis[^anubis]) also use a <abbr class="smallcaps">PoW</abbr> verification
 
 
 
-## Verifiable Oblivious Pseudorandom Functions
+## OPRF and VOPRF's
 
-ps. the footnotes are extensive
+**(Verifiable) Oblivious Pseudo-random Functions**
+
+## Additional Notes
+### Proof of Work Implementation
+
+### Post Quantum?
+We're (probably) nowhere near a good implementation, doesn't matter here but
+have fun. The blog here is using 
+
 
 [^privpass_ietf_wg]: The Privacy Pass
 [workgroup](https://datatracker.ietf.org/wg/privacypass/about/) is actively
@@ -61,9 +86,38 @@ experiment to bypass their captcha bot-walls.
     generated sequentially, so only the index is later sent back for
     verification to save some bytes.
     
-    The implementation of a good proof-of-work system honestly deserves a lot of consideration. I do not think PoW is "good" engineering, I also don't think we have an alternative. Captcha's are provably broken, especially if they're static. Mandating the use of Javascript sucks as well, especially if it includes user tracking. Wasting CPU cycles on computing hashes is bad.
+    The implementation of a good proof-of-work system honestly deserves a lot of consideration. I do not think any proof-of-work scheme is "good" engineering, I also don't think we currently have an alternative. Captcha's are provably broken, especially if they're static. Mandating the use of Javascript sucks as well, especially if it includes user tracking. Wasting CPU cycles on computing hashes is bad.
 
 [^anubis]: [Anubis](https://github.com/TecharoHQ/anubis). I've been meaning to
     extend my Privacy Pass implementation to a proxy like this. The downside is
     that whilst Anubis can be stateless, Privacy Passes require checking for
     double-spends, I for example use a bloom filter.
+
+[^kagi]: There's an inherent risk of linkability in the
+    tokens generated here. My understanding is that Kagi attempt to reduce this
+    risk by using an onion service for the token generation process, and
+    minimize data sent to their API when redeeming tokens for searches. As with
+    a most things, Privacy Passes aren't a panacea, but in concept Kagi can't
+    link issuance and redemption if a user is searching via their onion service.
+
+[^token_chall_struct]:
+    *TokenChallenge*, defined as a opaque byte-string in the main standard.
+    Using the redemption context field is optional, and risks making the tokens
+    linkable. Issuer name and origin info is important to prevent cross-origin spends.
+    ```go
+    struct {
+      uint16_t token_type;
+      opaque issuer_name<1..2^16-1>;
+      opaque redemption_context<0..32>; // Optional
+      opaque origin_info<0..2^16-1>;
+    } TokenChallenge;
+    ```
+[^token_req_struct]: 
+    *TokenRequest*
+    ```go
+    struct {
+      uint16_t token_type = 0x0001; /* Type VOPRF(P-384, SHA-384) */
+      uint8_t truncated_token_key_id;
+      uint8_t blinded_msg[Ne];
+    } TokenRequest;
+    ```
