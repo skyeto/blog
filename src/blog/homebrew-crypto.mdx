@@ -40,9 +40,40 @@ standard (I omit having a split origin, attester, and issuer):
 * **TokenChallenge**[^token_chall_struct] - sent from the server to the client with required metadata,
   alongside the issuer public key. The client uses the public key to verify that
   the issuer didn't use a special "bad" key, to for example de-anonymize the user.
-* **TokenRequest**[^token_req_struct]
+* **TokenRequest**[^token_req_struct] - sent from the client to the issuer,
+  contains the blinded inputs from the client, the client stores both the input
+  and the blinded input.
+* **TokenResponse**[^token_resp_struct] - sent in response to a *TokenRequest*
+  to the client with the evaluated blinded inputs, and the respective proofs.
+* **Token**[^token_struct] - the client constructs a token using the evaluated
+  blinded input from the server and the input.
+* **TokenVerification** - Server verification of the blinded tokens
 
-### Token Challenge
+It's a lot of moving parts, so let's dive into each more in-depth.
+
+
+## OPRF and VOPRF's
+**a.k.a. (Verifiable) Oblivious Pseudo-random Functions**
+
+Before diving into the specifics though, an important aside on what <abbr class="smallcaps">(V)OPRF</abbr>'s
+are and what they accomplish in a Privacy Pass scheme.
+
+Our goal is to generate tokens where a malicious operator cannot link a user
+fetching (issuing) and redeeming tokens. Ideally, the user should be able to
+verify that their token doesn't contain any metadata that are attributable to
+them, and that the server isn't underhandedly generating unique keys each time
+it's issuing new tokens.
+
+Since making the tokens verifiable is an extension, I'll begin with <abbr class="smallcaps">OPRF</abbr>'s:
+
+### Oblivious Pseudorandom Functions
+
+The first goal is to create a token that the server can issue and verify,
+without learning the message until it verifies the token. We do this by
+introducing the concept of a blind.
+
+
+## Token Challenge
 
 The standard only specifies the parts relevant to Privacy Passes, so its up to
 you when implementing to decide on the issuance criteria. This is where a systems
@@ -56,15 +87,12 @@ Instead of issuing a regular token the client (in this case, the browser)
 replies with the solution to the <abbr class="smallcaps">PoW</abbr> challenge,
 and 
 
-### Token Request and Issuance
+## Token Request and Issuance
 
-### Token Verification
+## Token Verification
 
 
 
-## OPRF and VOPRF's
-
-**(Verifiable) Oblivious Pseudo-random Functions**
 
 ## Additional Notes
 ### Proof of Work Implementation
@@ -130,4 +158,24 @@ experiment to bypass their captcha bot-walls.
       uint8_t truncated_token_key_id;
       uint8_t blinded_msg[Ne];
     } TokenRequest;
+    ```
+[^token_resp_struct]:
+    *TokenResponse*
+    ```go
+    struct {
+        uint8_t evaluate_msg[Ne];
+        uint8_t evaluate_proof[Ns+Ns];
+    } TokenResponse;
+    ```
+
+[^token_struct]:
+    *Token*
+    ```go
+    struct {
+     uint16_t token_type = 0x0001; // Type VOPRF(P-384, SHA-384)
+     uint8_t nonce[32];
+     uint8_t challenge_digest[32];
+     uint8_t token_key_id[32];
+     uint8_t authenticator[Nk];
+    } Token;
     ```
