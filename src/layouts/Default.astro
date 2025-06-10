@@ -13,7 +13,12 @@ const GIT_COMMIT = fs
 const { navbar, title, description, pubDate } = Astro.props;
 ---
 
-<Layout class="text-white" title={title} description={description} pubDate={pubDate}>
+<Layout
+  class="text-white"
+  title={title}
+  description={description}
+  pubDate={pubDate}
+>
   <div class="flex min-h-[100vh] flex-col">
     <main class="flex grow flex-col">
       <div class="grid min-h-[100vh] auto-rows-min gap-x-12">
@@ -24,7 +29,7 @@ const { navbar, title, description, pubDate } = Astro.props;
         </div>
 
         <nav class="col-start-3 row-start-1">
-          <Navbar showBacklink={navbar} />
+          <Navbar showBacklink="{navbar}" />
         </nav>
 
         <div class="contents" transition:name="content">
@@ -37,7 +42,7 @@ const { navbar, title, description, pubDate } = Astro.props;
     </main>
   </div>
 
-  <footer class="mt-10 mb-5 text-center text-[9px] text-neutral-600">
+  <footer class="mt-10 mb-5 text-center text-[0.633rem] text-white/55">
     <p>
       &copy; 2025 skyeto;
       <a class="underline" href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -49,13 +54,13 @@ const { navbar, title, description, pubDate } = Astro.props;
       >
       unless otherwise specified.
     </p>
-    <p class="debug mt-1 text-white/10">
-      Commit: {GIT_COMMIT} Build: DQ241L Session ID:
+    <p class="debug mt-1 text-white/50">
+      Commit: <a class="underline"  href=`https://github.com/skyeto/blog/commit/${GIT_COMMIT}`>{GIT_COMMIT}</a> Build: DQ241L Session ID:
       <span id="session_id">none</span>
     </p>
-    <p class="debug text-white/10">
-      Session is cleared on each visit, no trackers, just some homebrew cryptography.<br />
-      Read more about this soon! (mmm... voprf)
+    <p class="debug text-white/50">
+      Session is cleared on each visit, no tracking, just some homebrew
+      cryptography.
     </p>
     <br /><br />
 
@@ -148,9 +153,10 @@ const { navbar, title, description, pubDate } = Astro.props;
     font-weight: 100 900;
     font-display: swap;
     src: url("/public_sans_latin.woff2") format("woff2");
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+      U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
-
 
   @font-face {
     font-family: literata-tt-var;

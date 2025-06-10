@@ -71,8 +71,17 @@ and
 
 ### Post Quantum?
 We're (probably) nowhere near a good implementation, doesn't matter here but
-have fun. The blog here is using 
+have fun. The blog here is using
 
+### Attribution
+In no specific order:
+* raphaelrobert on [Github](https://github.com/raphaelrobert) for
+  implementing the <abbr class="smallcaps">VOPRF</abbr> crypto primitives in Rust, used both on the client and
+  server. (MIT)
+* FriendlyCaptcha on
+  [Github](https://github.com/FriendlyCaptcha/friendly-pow/blob/ac5ad25fb635826b8a3f8dd119f69e4cdde42394/src/blake2b/blake2b64.ts)
+  for the assemblyscript implementation of blake2b (MIT licensed version)
+* <abbr class="smallcaps">IETF</abbr> PrivacyPass workgroup for the standard.
 
 [^privpass_ietf_wg]: The Privacy Pass
 [workgroup](https://datatracker.ietf.org/wg/privacypass/about/) is actively
@@ -97,7 +106,8 @@ experiment to bypass their captcha bot-walls.
     tokens generated here. My understanding is that Kagi attempt to reduce this
     risk by using an onion service for the token generation process, and
     minimize data sent to their API when redeeming tokens for searches. As with
-    a most things, Privacy Passes aren't a panacea, but in concept Kagi can't
+    a most things, Privacy Passes aren't a panacea, but in practice Kagi
+    shouldn't be able to
     link issuance and redemption if a user is searching via their onion service.
 
 [^token_chall_struct]:
@@ -116,7 +126,7 @@ experiment to bypass their captcha bot-walls.
     *TokenRequest*
     ```go
     struct {
-      uint16_t token_type = 0x0001; /* Type VOPRF(P-384, SHA-384) */
+      uint16_t token_type = 0x0001; // Type VOPRF(P-384, SHA-384)
       uint8_t truncated_token_key_id;
       uint8_t blinded_msg[Ne];
     } TokenRequest;
