@@ -1,0 +1,69 @@
+---
+layout: "@layouts/Post.astro"
+title: "Homebrew Crypto for Fun (and no profit)"
+pubDate: 2025-06-09
+draft: false
+publish: true
+author: "skye"
+---
+
+<div class="w-full bg-red-500/25 py-3 px-2 rounded mb-5 shadow border
+border-red-500/75">You are currently viewing a draft, check back soon!</div>
+
+I am perpetually bad at writing posts for this blog, though I am terrifyingly
+good at writing backend systems for it. Although, implementing a subset of the
+PrivacyPass specification has been fun and I want to detail it in writing for my
+own understanding as well.
+
+
+## What the heck is a Privacy Pass
+
+Privacy Pass[^privpass_ietf_wg] is a protocol that provides issuing and
+verifying tokens. What makes the protocol special compared to say, a <abbr
+class="smallcaps">JWT</abbr>, is that the verifier can't link issuance and
+redemption based on the token itself.
+
+At a high level the protocol consists of 3 (TODO: Check!) steps - a challenge,
+then generating and verifying tokens. In the case of this blog, the token is
+exchanged for a short-lived <abbr class="smallcaps">JWT</abbr>.
+
+<img src="https://blog.cdn.skyeto.net/p/homebrew-crypto/token_flow.png"
+alt="example request flow, GET request to token-challenge, POST requests to
+token-request and token-exchange"/>
+
+### Token Challenge
+
+The standard only specifies the parts relevant to Privacy Passes, so its up to
+you when implementing to decide on the issuance criteria. This is where a system
+using PP's mainly differ. I use a proof-of-work challenge[^pow] just like
+regular firewalls/proxies (e.g. 
+Anubis[^anubis]) also use a <abbr class="smallcaps">PoW</abbr> verification
+
+### Token Request and Issuance
+
+### Token Verification
+
+
+
+## Virtually Oblivious Private Functions
+
+ps. the footnotes are extensive
+
+[^privpass_ietf_wg]: The Privacy Pass
+[workgroup](https://datatracker.ietf.org/wg/privacypass/about/) is actively
+developing the spec after taking it over from Cloudflare who used it in an
+experiment to bypass their captcha bot-walls.
+
+[^pow]: Specifically, with the Privacy Pass challenge the server also issues a
+    signed proof-of-work challenge to generate a number of Blake2b hashes. The
+    browser loads a <abbr class="smallcaps">WASM</abbr> module (the *Web Crypto API* is too slow) and generates
+    hashes checking if their value is below the required threshold. Hashes are
+    generated sequentially, so only the index is later sent back for
+    verification.
+    
+    The implementation of a good proof-of-work system honestly deserves a lot of consideration. I do not think PoW is "good" engineering, I also don't think we have an alternative. Captcha's are provably broken, especially if they're static. Mandating the use of Javacsript sucks as well. Wasting CPU cycles on computing hashes is bad.
+
+[^anubis]: [Anubis](https://github.com/TecharoHQ/anubis). I've been meaning to
+    extend my Privacy Pass implementation to a proxy like this. The downside is
+    that whilst Anubis can be stateless, Privacy Passes require checking for
+    double-spends, I for example use a bloom filter.
