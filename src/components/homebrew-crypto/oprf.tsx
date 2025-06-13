@@ -152,6 +152,10 @@ export default function OPRF() {
           class: "!bg-red-300/50 font-bold",
         });
       }
+    } else {
+      writeLog("client", "no previous hash to compare to, evaluate again", {
+        class: "!bg-zinc-300/50 font-bold",
+      });
     }
     setPrevHash(unblind);
   };
@@ -230,7 +234,7 @@ export default function OPRF() {
 
       <div className="font-mono">Log</div>
       <div
-        className="max-h-48 w-full overflow-x-scroll bg-white/5 font-mono text-xs break-all"
+        className="max-h-48 w-full overflow-x-scroll rounded-xs bg-white/5 font-mono text-xs break-all"
         ref={logRef}
       >
         {log.map((v) => {
@@ -242,7 +246,8 @@ export default function OPRF() {
                   "bg-purple-300/50": v.type == "client",
                   "bg-blue-300/50": v.type == "info",
                 },
-                v.extra.class
+                v.extra.class,
+                "px-1"
               )}
               key={v.id}
             >
