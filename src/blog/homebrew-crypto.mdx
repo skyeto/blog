@@ -7,6 +7,8 @@ publish: true
 author: "skye"
 ---
 
+import OPRF from "../components/homebrew-crypto/oprf.tsx";
+
 <div class="w-full bg-red-500/25 py-3 px-2 rounded mb-5 shadow border
 border-red-500/75">You are currently viewing a draft, check back soon!</div>
 
@@ -37,9 +39,10 @@ standard (I omit having a split origin, attester, and issuer):
 * **Client/browser** - where you're reading right now!
 * **Server/issuer** - verifies challenges, verifies redemption tokens, in this
   case the API at `api.blog.skyeto.net`
-* **TokenChallenge**[^token_chall_struct] - sent from the server to the client with required metadata,
-  alongside the issuer public key. The client uses the public key to verify that
-  the issuer didn't use a special "bad" key, to for example de-anonymize the user.
+* **TokenChallenge**[^token_chall_struct] - sent from the server to the client
+  with required metadata, alongside the issuer public key. The client uses the
+  public key to verify that the issuer didn't use a special "bad" key, to for
+  example de-anonymize the user.
 * **TokenRequest**[^token_req_struct] - sent from the client to the issuer,
   contains the blinded inputs from the client, the client stores both the input
   and the blinded input.
@@ -55,37 +58,55 @@ It's a lot of moving parts, so let's dive into each more in-depth.
 ## OPRF and VOPRF's
 **a.k.a. (Verifiable) Oblivious Pseudo-random Functions**
 
-Before diving into the specifics though, an important aside on what <abbr class="smallcaps">(V)OPRF</abbr>'s
-are and what they accomplish in a Privacy Pass scheme.
+Before diving into the specifics though, an important aside on what <abbr
+class="smallcaps">(V)OPRF</abbr>'s are and what they accomplish in a Privacy
+Pass scheme.
 
 Our goal is to generate tokens where a malicious operator cannot link a user
 fetching (issuing) and redeeming tokens. Ideally, the user should be able to
-verify that their token doesn't contain any metadata that are attributable to
+verify that their token doesn't contain any metadata that is attributable to
 them, and that the server isn't underhandedly generating unique keys each time
-it's issuing new tokens.
+it evaluates blinded inputs.
 
-Since making the tokens verifiable is an extension, I'll begin with <abbr class="smallcaps">OPRF</abbr>'s:
+[note] By evaluating blinded inputs with a unique key a malicious server could
+link issuance and redemption by checking the token against which key it used, by
+using a VOPRF the client can check that the key used isn't unique.
+
+Let's begin with <abbr class="smallcaps">OPRF</abbr>'s since making them
+verifiable just adds an additional step.
 
 ### Oblivious Pseudorandom Functions
 
-The first goal is to create a token that the server can issue and verify,
-without learning the message until it verifies the token. We do this by
-introducing the concept of a blind.
+The first goal is to create a token that the server can issue and verify without
+being able to link the two events. We do this by first introducing the concept
+of a blind value and blind evaluation.
 
+The primitive we're looking for is to be able to perform a computation without
+learning the input, and without revealing the parameters of the computation.
+
+[!note]
+Crypto Dictionary by Jean-Philippe Aumasson describes OPRFs succinctly as:
+> A two-party protocol where a server knows a key K and a client computes PRF(K,
+X) for some X without learning K by interacting with the server, which must
+learn nothing about X or PRF(K, X).
+[/note]
+
+You can play around with the following demo implementing an OPRF.
+<OPRF client:load />
 
 ## Token Challenge
 
 The standard only specifies the parts relevant to Privacy Passes, so its up to
-you when implementing to decide on the issuance criteria. This is where a systems
-using PP's mainly differ. I use a proof-of-work challenge[^pow] scheme just like
-regular firewalls/proxies (e.g. 
-Anubis[^anubis] that also use a <abbr class="smallcaps">PoW</abbr> challenge).
-Kagi Search that recently started using a similar system issue tokens based on
-your regular account token, then authenticate searches using tokens.[^kagi]
+you when implementing to decide on the issuance criteria. This is where a
+systems using PP's mainly differ. I use a proof-of-work challenge[^pow] scheme
+just like regular firewalls/proxies (e.g. Anubis[^anubis] that also use a <abbr
+class="smallcaps">PoW</abbr> challenge). Kagi Search that recently started using
+a similar system issue tokens based on your regular account token, then
+authenticate searches using tokens.[^kagi]
 
 Instead of issuing a regular token the client (in this case, the browser)
 replies with the solution to the <abbr class="smallcaps">PoW</abbr> challenge,
-and 
+and
 
 ## Token Request and Issuance
 
@@ -103,9 +124,9 @@ have fun. The blog here is using
 
 ### Attribution
 In no specific order:
-* raphaelrobert on [Github](https://github.com/raphaelrobert) for
-  implementing the <abbr class="smallcaps">VOPRF</abbr> crypto primitives in Rust, used both on the client and
-  server. (MIT)
+* raphaelrobert on [Github](https://github.com/raphaelrobert) for implementing
+  the <abbr class="smallcaps">VOPRF</abbr> crypto primitives in Rust, used both
+  on the client and server. (MIT)
 * FriendlyCaptcha on
   [Github](https://github.com/FriendlyCaptcha/friendly-pow/blob/ac5ad25fb635826b8a3f8dd119f69e4cdde42394/src/blake2b/blake2b64.ts)
   for the assemblyscript implementation of blake2b (MIT licensed version)
@@ -118,10 +139,10 @@ experiment to bypass their captcha bot-walls.
 
 [^pow]: Specifically, with the Privacy Pass challenge the server also issues a
     signed proof-of-work challenge to generate a number of Blake2b hashes. The
-    browser loads a <abbr class="smallcaps">WASM</abbr> module (the *Web Crypto API* is too slow) and generates
-    hashes; checking if their value is below the required threshold. Hashes are
-    generated sequentially, so only the index is later sent back for
-    verification to save some bytes.
+    browser loads a <abbr class="smallcaps">WASM</abbr> module (the *Web Crypto
+    API* is too slow) and generates hashes; checking if their value is below the
+    required threshold. Hashes are generated sequentially, so only the index is
+    later sent back for verification to save some bytes.
     
     The implementation of a good proof-of-work system honestly deserves a lot of consideration. I do not think any proof-of-work scheme is "good" engineering, I also don't think we currently have an alternative. Captcha's are provably broken, especially if they're static. Mandating the use of Javascript sucks as well, especially if it includes user tracking. Wasting CPU cycles on computing hashes is bad.
 
@@ -130,13 +151,12 @@ experiment to bypass their captcha bot-walls.
     that whilst Anubis can be stateless, Privacy Passes require checking for
     double-spends, I for example use a bloom filter.
 
-[^kagi]: There's an inherent risk of linkability in the
-    tokens generated here. My understanding is that Kagi attempt to reduce this
-    risk by using an onion service for the token generation process, and
-    minimize data sent to their API when redeeming tokens for searches. As with
-    a most things, Privacy Passes aren't a panacea, but in practice Kagi
-    shouldn't be able to
-    link issuance and redemption if a user is searching via their onion service.
+[^kagi]: There's an inherent risk of linkability in the tokens generated here.
+    My understanding is that Kagi attempt to reduce this risk by using an onion
+    service for the token generation process, and minimize data sent to their
+    API when redeeming tokens for searches. As with a most things, Privacy
+    Passes aren't a panacea, but in practice Kagi shouldn't be able to link
+    issuance and redemption if a user is searching via their onion service.
 
 [^token_chall_struct]:
     *TokenChallenge*, defined as a opaque byte-string in the main standard.
