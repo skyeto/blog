@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { p384, hashToCurve } from "@noble/curves/p384";
 import { invert } from "@noble/curves/abstract/modular";
 import { bytesToNumberBE, bytesToHex } from "@noble/curves/utils";
+import { clsx } from "clsx";
 
 const p384c = {
   p: BigInt(
@@ -41,6 +42,10 @@ function blindOPRF(blindingFactor, input) {
 
   // Blind the point
   const blindedPoint = m.multiply(blindingFactorInv);
+  console.log("test1", m);
+  const unblindTest = blindedPoint.multiply(bytesToNumberBE(blindingFactor));
+  console.log("test2", unblindTest);
+  console.log("same point?", unblindTest.equals(m));
 
   return blindedPoint;
 }
@@ -73,6 +78,7 @@ export default function OPRF() {
   const [clientInput, setClientInput] = useState("oprf?! (you can change me!)");
   const [secretKey, setSecretKey] = useState<BigInt>(BigInt(0));
   const [log, setLog] = useState([]);
+  const [prevHash, setPrevHash] = useState("");
   const logRef = useRef();
 
   useEffect(() => {
@@ -87,7 +93,68 @@ export default function OPRF() {
   useEffect(() => {
     setBlindingFactor(p384.utils.randomPrivateKey());
     setSecretKey(p384.utils.randomPrivateKey());
+    writeLog("info", "set initial keys");
   }, []);
+
+  const writeLog = (type, message, extra) => {
+    setLog((prevLog) => [
+      ...prevLog,
+      {
+        id: id++,
+        type: type,
+        message: message,
+        extra: extra ? extra : "",
+      },
+    ]);
+  };
+
+  const simulateOPRF = async () => {
+    const delay = async (delay) => {
+      return await new Promise((resolve, reject) => {
+        setTimeout(
+          () => {
+            resolve();
+          },
+          delay ? delay : 1000
+        );
+      });
+    };
+
+    writeLog("info", "--- Running OPRF protocol ---");
+    await delay(100);
+
+    const blinded = blindOPRF(blindingFactor, clientInput);
+    console.log("Blinded point: ", blinded);
+    setBlindedPoint(blinded);
+    writeLog("client", `blinded point`);
+    writeLog("client", "sending point to server for evaluation");
+
+    await delay(500);
+    const evaluated = evaluateBlindOPRF(secretKey, blinded);
+    console.log("[Server] Evaluated point: ", evaluated);
+    writeLog("server", `evaluated blinded point`);
+    setEvaluatedPoint(evaluated);
+
+    await delay(500);
+    writeLog("client", "received evaluated blinded point from server");
+    const unblind = await unblindOPRF(blindingFactor, evaluated);
+    console.log("[Client] Unblinded point hash: ", unblind);
+    writeLog("client", `unblinded evaluated point`);
+    writeLog("client", `OPRF hash: ${unblind}`);
+
+    if (prevHash != "") {
+      if (prevHash == unblind) {
+        writeLog("client", "hashes match between runs!", {
+          class: "!bg-green-300/50 font-bold",
+        });
+      } else {
+        writeLog("client", "hash did not match, did you change the input?", {
+          class: "!bg-red-300/50 font-bold",
+        });
+      }
+    }
+    setPrevHash(unblind);
+  };
 
   return (
     <div className="w-full rounded bg-black/50 px-2 py-2 shadow">
@@ -125,14 +192,7 @@ export default function OPRF() {
           className="w-full cursor-pointer underline"
           onClick={(e) => {
             setBlindingFactor(p384.utils.randomPrivateKey());
-            setLog([
-              ...log,
-              {
-                id: id++,
-                type: "client",
-                message: "client blinding factor updated",
-              },
-            ]);
+            writeLog("client", "client blinding factor updated");
           }}
         >
           New Blinding Factor
@@ -142,10 +202,7 @@ export default function OPRF() {
           className="w-full cursor-pointer underline"
           onClick={(e) => {
             setSecretKey(p384.utils.randomPrivateKey());
-            setLog([
-              ...log,
-              { id: id++, type: "server", message: "server key updated" },
-            ]);
+            writeLog("server", "server key updated");
           }}
         >
           New Server Key
@@ -156,60 +213,17 @@ export default function OPRF() {
       <div className="flex w-full flex-row font-mono text-sm">
         <button
           className="w-full cursor-pointer underline"
-          onClick={(e) => {
-            const blinded = blindOPRF(blindingFactor, clientInput);
-            console.log("Blinded point: ", blinded);
-
-            setBlindedPoint(blinded);
-            setLog([
-              ...log,
-              {
-                id: id++,
-                type: "client",
-                message: `blinded point: ${bytesToHex(blinded.toRawBytes())}`,
-              },
-            ]);
+          onClick={() => {
+            simulateOPRF();
           }}
         >
-          Blind Point
+          Evaluate
         </button>
-
-        {/* Evaluate Blinded Points */}
-        <button
-          className="w-full cursor-pointer underline"
-          onClick={async (e) => {
-            const evaluated = evaluateBlindOPRF(secretKey, blindedPoint);
-            console.log("[Server] Evaluated point: ", evaluated);
-
-            setEvaluatedPoint(evaluated);
-
-            const unblind = await unblindOPRF(blindingFactor, evaluated);
-            console.log("[Client] Unblinded point hash: ", unblind);
-
-            setLog([
-              ...log,
-              {
-                id: id++,
-                type: "client",
-                message: "sending blinded point to server",
-              },
-              {
-                id: id++,
-                type: "server",
-                message: `evaluated point: ${bytesToHex(evaluated.toRawBytes())}`,
-              },
-              { id: id++, type: "client", message: "unblinded point: " },
-            ]);
-          }}
-        >
-          Evaluate Blinded Point
-        </button>
-
-        <button className="w-full cursor-pointer underline">Verify</button>
       </div>
 
       <div className="mt-4 font-mono text-sm">
-        Tip! Try computing the OPRF with different blinding factors!
+        Tip! Try computing the OPRF with different blinding factors but the same
+        input!
       </div>
 
       <hr className="my-4 opacity-25" />
@@ -221,11 +235,20 @@ export default function OPRF() {
       >
         {log.map((v) => {
           return (
-            <div className="font-mono" key={v.id}>
+            <div
+              className={clsx(
+                {
+                  "bg-amber-300/50": v.type == "server",
+                  "bg-purple-300/50": v.type == "client",
+                  "bg-blue-300/50": v.type == "info",
+                },
+                v.extra.class
+              )}
+              key={v.id}
+            >
               <span>
-                [{v.type}/{v.id}]
-              </span>{" "}
-              {v.message}
+                [{v.type}/{v.id}] {v.message}
+              </span>
             </div>
           );
         })}
