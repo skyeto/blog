@@ -126,21 +126,21 @@ export default function OPRF() {
     const blinded = blindOPRF(blindingFactor, clientInput);
     console.log("Blinded point: ", blinded);
     setBlindedPoint(blinded);
-    writeLog("client", `blinded point`);
-    writeLog("client", "sending point to server for evaluation");
+    writeLog("client", `blinded point (cI * inv(cBf) = Bp)`);
+    writeLog("client", "sending Bp to server for evaluation");
 
     await delay(500);
     const evaluated = evaluateBlindOPRF(secretKey, blinded);
     console.log("[Server] Evaluated point: ", evaluated);
-    writeLog("server", `evaluated blinded point`);
+    writeLog("server", `evaluated Bp (Bp * sSk = eBp)`);
     setEvaluatedPoint(evaluated);
 
     await delay(500);
-    writeLog("client", "received evaluated blinded point from server");
+    writeLog("client", "received eBp from server");
     const unblind = await unblindOPRF(blindingFactor, evaluated);
     console.log("[Client] Unblinded point hash: ", unblind);
-    writeLog("client", `unblinded evaluated point`);
-    writeLog("client", `OPRF hash: ${unblind}`);
+    writeLog("client", `unblinded eBp (eBp * cBf = eI)`);
+    writeLog("client", `OPRF hash / sha384(eI): ${unblind}`);
 
     if (prevHash != "") {
       if (prevHash == unblind) {
@@ -163,13 +163,15 @@ export default function OPRF() {
   return (
     <div className="w-full rounded bg-black/50 px-2 py-2 text-sm shadow">
       <div className="mb-2 font-mono break-all">
-        (Client) Blinding Factor = <div>{blindingFactor}</div>
+        <div className="font-bold">(Client) Blinding Factor</div>
+        cBf = <div>{blindingFactor}</div>
       </div>
 
       <hr className="my-4 opacity-25" />
 
       <div className="mb-3 font-mono break-all">
-        (Client) Input =
+        <div className="font-bold">(Client) Input</div>
+        cI =
         <div>
           <input
             type="text"
@@ -185,7 +187,8 @@ export default function OPRF() {
       <hr className="my-4 opacity-25" />
 
       <div className="font-mono break-all">
-        (Server) Secret Key = <div>{secretKey}</div>
+        <div className="font-bold">(Server) Secret Key</div>
+        sSk = <div>{secretKey}</div>
       </div>
 
       <hr className="my-4 opacity-25" />
@@ -196,7 +199,7 @@ export default function OPRF() {
           className="w-full cursor-pointer underline"
           onClick={(e) => {
             setBlindingFactor(p384.utils.randomPrivateKey());
-            writeLog("client", "client blinding factor updated");
+            writeLog("client", "cBf updated");
           }}
         >
           New Blinding Factor
@@ -206,7 +209,7 @@ export default function OPRF() {
           className="w-full cursor-pointer underline"
           onClick={(e) => {
             setSecretKey(p384.utils.randomPrivateKey());
-            writeLog("server", "server key updated");
+            writeLog("server", "sSk updated");
           }}
         >
           New Server Key
