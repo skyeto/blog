@@ -84,15 +84,22 @@ of a blind value and blind evaluation.
 The primitive we're looking for is to be able to perform a computation without
 learning the input, and without revealing the parameters of the computation.
 
-[!note]
 Crypto Dictionary by Jean-Philippe Aumasson describes OPRFs succinctly as:
 > A two-party protocol where a server knows a key K and a client computes PRF(K,
 X) for some X without learning K by interacting with the server, which must
 learn nothing about X or PRF(K, X).
-[/note]
 
-You can play around with the following demo implementing an OPRF.
+#### Demo
+Play around with the demo implementing an OPRF.
 <OPRF client:load />
+
+The cool part about the evaluation in the demo is that the simulated server only
+ever receives the blinded input. It never sees the input or blinding factor!
+
+[note] The demo uses the *P-384* curve and relies on it being infeasible to find
+the logarithm of a random point on the curve. You can just as well implement it using RSA as
+the basis, and instead rely on the difficulty of factoring large integers
+composed of primes!
 
 ## Token Challenge
 

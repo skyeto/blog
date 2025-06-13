@@ -161,7 +161,7 @@ export default function OPRF() {
   };
 
   return (
-    <div className="w-full rounded bg-black/50 px-2 py-2 text-sm shadow">
+    <div className="mb-5 w-full rounded bg-black/50 px-2 py-2 text-sm shadow">
       <div className="mb-2 font-mono break-all">
         <div className="font-bold">(Client) Blinding Factor</div>
         cBf = <div>{blindingFactor}</div>
