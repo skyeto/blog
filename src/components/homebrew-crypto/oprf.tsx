@@ -70,6 +70,19 @@ function evaluateBlindOPRF(serverKey, blindedPoint) {
   return evaluatedPoint;
 }
 
+async function serverVerifyOPRF(serverKey, input) {
+  const inputBytes = new TextEncoder().encode(input);
+  const m = hashToCurve(inputBytes, { DST: "OPRF-P384-SHA384-v1" });
+  const evaluatedInput = m.multiply(bytesToNumberBE(serverKey));
+
+  const hash = await crypto.subtle.digest(
+    "SHA-384",
+    evaluatedInput.toRawBytes()
+  );
+
+  return bytesToHex(new Uint8Array(hash));
+}
+
 let id = 0;
 export default function OPRF() {
   const [blindingFactor, setBlindingFactor] = useState<BigInt>(BigInt(0));
@@ -120,6 +133,7 @@ export default function OPRF() {
       });
     };
 
+    writeLog("info", "");
     writeLog("info", "--- Running OPRF protocol ---");
     await delay(100);
 
@@ -142,15 +156,27 @@ export default function OPRF() {
     writeLog("client", `unblinded eBp (eBp * cBf = eI)`);
     writeLog("client", `OPRF hash / sha384(eI): ${unblind}`);
 
+    await delay(500);
+    const serverCalc = await serverVerifyOPRF(secretKey, clientInput);
+    writeLog("client", "sending cI and sha384(eI) to server for verification");
+    writeLog(
+      "server",
+      `sha384(cI * sSk) =  ${serverCalc}, ${serverCalc == unblind ? "hashes match between server and client!" : "something must have gone awry"}`
+    );
+
     if (prevHash != "") {
       if (prevHash == unblind) {
         writeLog("client", "hashes match between runs!", {
           class: "!bg-green-300/50 font-bold",
         });
       } else {
-        writeLog("client", "hash did not match, did you change the input?", {
-          class: "!bg-red-300/50 font-bold",
-        });
+        writeLog(
+          "client",
+          "hash did not match between evaluations, if you changed the input or server key this is expected!",
+          {
+            class: "!bg-red-300/50 font-bold",
+          }
+        );
       }
     } else {
       writeLog("client", "no previous hash to compare to, evaluate again", {
@@ -230,14 +256,15 @@ export default function OPRF() {
 
       <div className="mt-4 font-mono text-sm">
         Tip! Try computing the OPRF with different blinding factors but the same
-        input!
+        input! Also see that the server can compute the same hash without using
+        the blinding factor.
       </div>
 
       <hr className="my-4 opacity-25" />
 
       <div className="font-mono">Log</div>
       <div
-        className="max-h-48 w-full overflow-x-scroll rounded-xs bg-white/5 font-mono text-xs break-all"
+        className="max-h-64 w-full overflow-x-scroll rounded-xs bg-white/5 font-mono text-xs break-all"
         ref={logRef}
       >
         {log.map((v) => {
