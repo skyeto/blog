@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-import { p384 } from "@noble/curves/p384";
+import { p384, hashToCurve } from "@noble/curves/p384";
+import { invert } from "@noble/curves/abstract/modular";
+import { bytesToNumberBE, bytesToHex } from "@noble/curves/utils";
 
 const p384c = {
   p: BigInt(
@@ -24,24 +26,73 @@ const p384c = {
   ),
 };
 
+function blindOPRF(blindingFactor, input) {
+  const inputBytes = new TextEncoder().encode(input);
+
+  console.log(inputBytes);
+  // Hash input to a point on P-384
+  const m = hashToCurve(inputBytes, { DST: "OPRF-P384-SHA384-v1" });
+
+  // Calc inverse to the client blinding scalar
+  const blindingFactorInv = invert(
+    bytesToNumberBE(blindingFactor),
+    p384.CURVE.n
+  );
+
+  // Blind the point
+  const blindedPoint = m.multiply(blindingFactorInv);
+
+  return blindedPoint;
+}
+
+async function unblindOPRF(blindingFactor, evaluatedPoint) {
+  const unblindedPoint = evaluatedPoint.multiply(
+    bytesToNumberBE(blindingFactor)
+  );
+
+  const hash = await crypto.subtle.digest(
+    "SHA-384",
+    unblindedPoint.toRawBytes()
+  );
+
+  return bytesToHex(new Uint8Array(hash));
+}
+
+function evaluateBlindOPRF(serverKey, blindedPoint) {
+  // Evaluate (multiply) blinded point with server key
+  const evaluatedPoint = blindedPoint.multiply(bytesToNumberBE(serverKey));
+
+  return evaluatedPoint;
+}
+
+let id = 0;
 export default function OPRF() {
-  const [blindingFactor, setBlindingFactor] = useState(BigInt(0));
-  const [clientInput, setClientInput] = useState("oprf?!");
-  const [secretKey, setSecretKey] = useState(BigInt(0));
+  const [blindingFactor, setBlindingFactor] = useState<BigInt>(BigInt(0));
+  const [blindedPoint, setBlindedPoint] = useState();
+  const [evaluatedPoint, setEvaluatedPoint] = useState();
+  const [clientInput, setClientInput] = useState("oprf?! (you can change me!)");
+  const [secretKey, setSecretKey] = useState<BigInt>(BigInt(0));
   const [log, setLog] = useState([]);
+  const logRef = useRef();
+
+  useEffect(() => {
+    if (!logRef.current) return;
+
+    logRef.current.scrollTo({
+      top: logRef.current.scrollHeight,
+      behavior: "instant",
+    });
+  }, [log, logRef]);
+
+  useEffect(() => {
+    setBlindingFactor(p384.utils.randomPrivateKey());
+    setSecretKey(p384.utils.randomPrivateKey());
+  }, []);
 
   return (
     <div className="w-full rounded bg-black/50 px-2 py-2 shadow">
       <div className="mb-2 font-mono break-all">
         (Client) Blinding Factor = <div>{blindingFactor}</div>
-        <button
-          className="cursor-pointer underline"
-          onClick={(e) => {
-            setBlindingFactor(p384.utils.randomPrivateKey());
-          }}
-        >
-          Generate
-        </button>
       </div>
 
       <hr className="my-4 opacity-25" />
@@ -53,7 +104,7 @@ export default function OPRF() {
             type="text"
             value={clientInput}
             onChange={(e) => {
-              setClientInput(e.value);
+              setClientInput(e.target.value);
             }}
             className="w-full bg-white/5"
           />
@@ -64,26 +115,121 @@ export default function OPRF() {
 
       <div className="font-mono break-all">
         (Server) Secret Key = <div>{secretKey}</div>
+      </div>
+
+      <hr className="my-4 opacity-25" />
+
+      <div className="font-mono text-sm">Generate Keys:</div>
+      <div className="mb-4 flex w-full flex-row font-mono text-sm">
         <button
-          className="cursor-pointer underline"
+          className="w-full cursor-pointer underline"
           onClick={(e) => {
-            setSecretKey(p384.utils.randomPrivateKey());
+            setBlindingFactor(p384.utils.randomPrivateKey());
+            setLog([
+              ...log,
+              {
+                id: id++,
+                type: "client",
+                message: "client blinding factor updated",
+              },
+            ]);
           }}
         >
-          Generate
+          New Blinding Factor
+        </button>
+
+        <button
+          className="w-full cursor-pointer underline"
+          onClick={(e) => {
+            setSecretKey(p384.utils.randomPrivateKey());
+            setLog([
+              ...log,
+              { id: id++, type: "server", message: "server key updated" },
+            ]);
+          }}
+        >
+          New Server Key
         </button>
       </div>
 
-      <hr className="my-4 opacity-25" />
+      <div className="font-mono text-sm">Compute:</div>
+      <div className="flex w-full flex-row font-mono text-sm">
+        <button
+          className="w-full cursor-pointer underline"
+          onClick={(e) => {
+            const blinded = blindOPRF(blindingFactor, clientInput);
+            console.log("Blinded point: ", blinded);
 
-      <div classname="flex flex-row font-mono w-full">
-        <button className="w-full">Compute OPRF</button>
+            setBlindedPoint(blinded);
+            setLog([
+              ...log,
+              {
+                id: id++,
+                type: "client",
+                message: `blinded point: ${bytesToHex(blinded.toRawBytes())}`,
+              },
+            ]);
+          }}
+        >
+          Blind Point
+        </button>
+
+        {/* Evaluate Blinded Points */}
+        <button
+          className="w-full cursor-pointer underline"
+          onClick={async (e) => {
+            const evaluated = evaluateBlindOPRF(secretKey, blindedPoint);
+            console.log("[Server] Evaluated point: ", evaluated);
+
+            setEvaluatedPoint(evaluated);
+
+            const unblind = await unblindOPRF(blindingFactor, evaluated);
+            console.log("[Client] Unblinded point hash: ", unblind);
+
+            setLog([
+              ...log,
+              {
+                id: id++,
+                type: "client",
+                message: "sending blinded point to server",
+              },
+              {
+                id: id++,
+                type: "server",
+                message: `evaluated point: ${bytesToHex(evaluated.toRawBytes())}`,
+              },
+              { id: id++, type: "client", message: "unblinded point: " },
+            ]);
+          }}
+        >
+          Evaluate Blinded Point
+        </button>
+
+        <button className="w-full cursor-pointer underline">Verify</button>
+      </div>
+
+      <div className="mt-4 font-mono text-sm">
+        Tip! Try computing the OPRF with different blinding factors!
       </div>
 
       <hr className="my-4 opacity-25" />
 
-      <div class="font-mono">Log</div>
-      <div class="max-h-64 w-full bg-white font-mono">{log}</div>
+      <div className="font-mono">Log</div>
+      <div
+        className="max-h-48 w-full overflow-x-scroll bg-white/5 font-mono text-xs break-all"
+        ref={logRef}
+      >
+        {log.map((v) => {
+          return (
+            <div className="font-mono" key={v.id}>
+              <span>
+                [{v.type}/{v.id}]
+              </span>{" "}
+              {v.message}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
