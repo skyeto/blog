@@ -1,0 +1,28 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "@layouts/Post.astro";
+import { boolean, date } from "astro:schema";
+
+export async function getStaticPaths() {
+  const books = await getCollection("book");
+  return books.map((book) => ({
+    params: { id: book.id },
+    props: { book },
+  }));
+}
+
+const { book } = Astro.props;
+const { Content } = await render(book);
+
+console.log(book.data)
+---
+
+
+<Layout frontmatter={{pubDate: book.data.date, ...book.data}} disableFrontmatter headings={[]}>
+  <div>
+    { book.body != undefined && <Content /> }
+    { book.body == undefined && <div>
+        No notes :(
+        </div>}
+  </div>
+</Layout>

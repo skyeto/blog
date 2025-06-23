@@ -8,6 +8,7 @@ import profilePicture from "../../public/cropped_square_2.png";
 import { getCollection, render } from "astro:content";
 
 const posts = await getCollection("blog");
+const books = await getCollection("book");
 ---
 
 <Default title="Ramblings of a fox" description="A rambly collection of posts with everything from CTF writeups, bad ideas, bikepacking excursions, and more." navbar={false} showBacklink={false}>
@@ -37,7 +38,7 @@ const posts = await getCollection("blog");
             <span class="enby">enby</span>
           </li>
           <li>
-            <a href="https://github.com/skyeto">github</a> | <a href="https://sr.ht/~skyeto/">sourcehut</a>
+            <a class="hover:underline" href="https://github.com/skyeto">github</a> | <a class="hover:underline" href="https://sr.ht/~skyeto/">sourcehut</a>
             </li>
           <li>
             GPG 826C BDB0 8C5F F874
@@ -84,6 +85,56 @@ const posts = await getCollection("blog");
             </a>
           )
         }
+      </div>
+    </div>
+
+    <div class="mb-5 mt-12 w-full">
+      <p>--- (RECENT) BOOK NOTES ---</p>
+
+      <div>
+        <div class="mb-1">- IT / Tech</div>
+        {
+          books.sort((a,b) => { return Date.parse(b.data.date) - Date.parse(a.data.date); }).filter(book => book.data.progress != 0).filter(book => book.data.category == "IT").slice(0,2).map((book) =>
+            <a href=`/b/${book.id}`>
+              <div class="inline-block mb-0.5">
+                [{book.data.progress*100}%] {book.data.title} / { book.data.author.length == 1 ? 
+                <span>{book.data.author[0].split(" ")[0][0]}. {book.data.author[0].split(" ").at(-1)}</span> : <span>
+                  {book.data.author[0].split(" ").at(-1)} et al.
+                  </span>}
+              </div>
+            </a>
+          )
+        }
+
+        <div class="mt-3 mb-1">- MISC</div>
+        {
+          books.sort((a,b) => { return Date.parse(b.data.date) - Date.parse(a.data.date); }).filter(book => book.data.progress != 0).filter(book => book.data.category != "IT").slice(0,2).map((book) =>
+            <a href=`/b/${book.id}` class="mb-3">
+              <div class="inline-block">
+                [{book.data.progress*100}%] {book.data.title} / { book.data.author.length == 1 ? 
+                <span>{book.data.author[0].split(" ")[0][0]}. {book.data.author[0].split(" ").at(-1)}</span> : <span>
+                  {book.data.author[0].split(" ").at(-1)} et al.
+                  </span>}
+              </div>
+            </a>
+          )
+        }
+
+        <div class="mt-3 mb-1">- NOT STARTED</div>
+        {
+          books.sort((a,b) => { return Date.parse(b.data.date) - Date.parse(a.data.date); }).filter(book => book.data.progress == 0).slice(0,2).map((book) =>
+            <a href=`/b/${book.id}` class="mb-3">
+              <div class="inline-block">
+                [{book.data.category}] {book.data.title} / { book.data.author.length == 1 ? 
+                <span>{book.data.author[0].split(" ")[0][0]}. {book.data.author[0].split(" ").at(-1)}</span> : <span>
+                  {book.data.author[0].split(" ").at(-1)} et al.
+                  </span>}
+              </div>
+            </a>
+          )
+        }
+
+        <div class="mt-3 text-orange-500"><a href="/b/">> More...</a></div>
       </div>
     </div>
     

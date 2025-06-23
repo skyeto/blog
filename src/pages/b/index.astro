@@ -1,0 +1,116 @@
+---
+import Default from "../../layouts/Default.astro";
+import { getCollection, render } from "astro:content";
+
+const books = await getCollection("book");
+---
+
+<Default title="Book Notes" description="Some of my exported book notes!" navbar={false} showBacklink={false}>
+  <div
+    class="paper col-start-3 row-start-2 m-[-1rem] mt-10 rounded-xs p-[1rem]"
+  >
+        <div class="mb-5 mt-12 w-full">
+
+      <div>
+        <p>This is a non-exhaustive list of recently read books, some of them with my own notes.</p>
+        <div class="mb-1">- IT / Tech</div>
+        {
+          books.sort((a,b) => { return a.data.progress - b.data.progress; }).filter(book => book.data.progress != 0).filter(book => book.data.category == "IT").map((book) =>
+            <a href=`/b/${book.id}` data-disabled={book.body == undefined}>
+              <div class="inline-block mb-0.5">
+                <span class="opacity-50">[{book.data.progress*100}%{book.body != undefined && <span class="text-green-500">+N</span>}]</span> {book.data.title} / { book.data.author.length == 1 ? 
+                <span class="opacity-50">{book.data.author[0].split(" ")[0][0]}. {book.data.author[0].split(" ").at(-1)}</span> : <span class="opacity-50">
+                  {book.data.author[0].split(" ").at(-1)} et al.
+                  </span>}
+              </div>
+            </a>
+          )
+        }
+
+        <div class="mt-3 mb-1">- MISC</div>
+        {
+          books.sort((a,b) => { return a.data.progress - b.data.progress; }).filter(book => book.data.progress != 0).filter(book => book.data.category != "IT").map((book) =>
+            <a href=`/b/${book.id}` class="mb-3" data-disabled={book.body == undefined}>
+              <div class="inline-block">
+                <span class="opacity-50">[{book.data.progress*100}%{book.body != undefined && <span class="text-green-500">+N</span>}]</span> {book.data.title} / { book.data.author.length == 1 ? 
+                <span class="opacity-50">{book.data.author[0].split(" ")[0][0]}. {book.data.author[0].split(" ").at(-1)}</span> : <span class="opacity-50">
+                  {book.data.author[0].split(" ").at(-1)} et al.
+                  </span>}
+              </div>
+            </a>
+          )
+        }
+
+        <div class="mt-3 mb-1">- NOT STARTED</div>
+        {
+          books.sort((a,b) => { return a.data.progress - b.data.progress; }).filter(book => book.data.progress == 0).map((book) =>
+            <a href=`/b/${book.id}` class="mb-3" data-disabled={book.body == undefined}>
+              <div class="inline-block">
+                <span class="opacity-50">[{book.data.category}]</span> {book.data.title} / { book.data.author.length == 1 ? 
+                <span class="opacity-50">{book.data.author[0].split(" ")[0][0]}. {book.data.author[0].split(" ").at(-1)}</span> : <span class="opacity-50">
+                  {book.data.author[0].split(" ").at(-1)} et al.
+                  </span>}
+              </div>
+            </a>
+          )
+        }
+      </div>
+    </div>
+</Default>  
+
+  <style>
+    .paper {
+      background: var(--background-color);
+    }
+
+    .buttons * {
+      display: inline;
+    }
+
+    p,
+    ul,
+    li,
+    div {
+      font-family: departure-mono, var(--text-font-family);
+      /* font-size: 1.14rem; */
+      font-size: 0.873rem;
+      line-height: 1.34;
+      font-weight: 400;
+
+      font-feature-settings: normal;
+      font-variant-ligatures: common-ligatures;
+
+      /* text-align: justify;
+    text-align-last: left;*/
+      hyphens: auto;
+      hyphenate-limit-lines: 2;
+
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    p,
+    ul,
+    ol {
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: departure-mono, var(--text-font-family);
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    a > div { 
+        @apply hover:!underline
+    }
+
+    a[data-disabled="true"] > div {
+        @apply hover:!no-underline !cursor-default;
+    }
+    </style>
