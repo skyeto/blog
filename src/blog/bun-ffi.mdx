@@ -1,0 +1,95 @@
+---
+layout: "@layouts/Post.astro"
+title: "Quick Note on Bun FFI"
+pubDate: 2025-06-24
+draft: false
+publish: true
+author: "skye"
+---
+
+Recently I needed to interface with a native library in a small microservice
+written in JavaScript. Not counting cross-compiling native code into WebAssembly I've
+dealt with FFI mainly in the Elixir/Erlang world and to some degree in Go.
+
+There is a big distinction in my eyes between the two approaches, Go/CGo is
+a compiled language so the process of doing FFI is simple, and the
+implementation under the hood (seems) straightforward:
+
+```go
+package main
+
+// #include <stdio.h>
+// #include <stdlib.h>
+// static void print(char *s) { printf(s); printf("\n"); }
+import "C"
+import "unsafe"
+
+func main() {
+  s := C.CString("uwu")
+  C.print(s)
+  C.free(unsafe.Pointer(s))
+}
+```
+
+This roughly produces the following binary (disassembled with Binary Ninja):
+
+```c
+// Not the full disassembly output for brevity
+0046a8e0  uint64_t main.main()
+0046a8fa      rax_1, r1, p0 = main._Cfunc_CString(s, ~r0) // Allocates a string
+0046a908      s_1, zmm15 = main._Cfunc_print(p0, r1)
+0046a92a      return main.main.func1(s: s_1)
+
+// The print function defined in the comment above import "C"
+// Yes, its using the comment to define the function.
+0046a7e0  uint64_t main._Cfunc_print(main._Ctype_char* p0, uint8 r1[0x0])
+0046a7fc      int64_t* var_10 = &arg_8
+0046a801      main._cgo_824daf35e669_Cfunc_print
+0046a81a      uint64_t result
+0046a81a      result, zmm15_1 = runtime.cgocall(fn: p0, arg: r1, ~r0)
+
+004f71b0  uint64_t main._cgo_824daf35e669_Cfunc_print = 0x46a9f0 // Ref to the below func
+
+0046a9f0  int64_t _cgo_824daf35e669_Cfunc_print(void* v)
+0046a9f9      printf(format: *v)
+0046aa07      return putchar(c: 0xa) __tailcall
+```
+
+When compiled it just calls the function more or less as usual.
+
+[!note]
+Just a curious aside likely caused by the garbage collector in Go is that
+passing back uninitialized memory (containing what appears to be a Go pointer)
+can cause runtime errors :)
+
+> Note: the current implementation has a bug. While Go code is permitted to write nil or a C pointer (but not a Go pointer) to C memory, the current implementation may sometimes cause a runtime error if the contents of the C memory appear to be a Go pointer. Therefore, avoid passing uninitialized C memory to Go code if the Go code is going to store pointer values in it. Zero out the memory in C before passing it to Go.
+[/note]
+
+As both Elixir/Erlang and Bun (JavaScript) are both interpreted languages doing
+FFI calls is more interesting. The interpreter has to do the loading and calling
+during runtime! 
+
+In the Elixir world you have two main options, *ports* which are fundamentally
+just calling and communication over stdin/stdout, and *NIFs* (Native Implemented
+Functions) called directly from the runtime. The former are reliable but slower,
+the latter can easily cause issues in BEAM like bringing down the VM or starve the
+internal scheduler.
+
+Bun on the other hand is just kinda neat where you just load the library and do
+calls:
+
+```js
+import { dlopen, FFIType, CString } from "bun:ffi";
+
+const lib = dlopen("path/to/library.so", {
+  printf: {
+    args: [FFIType.cstring],
+    returns: FFIType.cstring,
+  },
+});
+
+const uwu = Buffer.from("uwu\n", "utf8");
+lib.symbols.printf(uwu);
+```
+
+I'm sure a segfault will still crash the VM, but it's still neat!
