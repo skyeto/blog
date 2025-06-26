@@ -25,7 +25,7 @@ import "C"
 import "unsafe"
 
 func main() {
-  s := C.CString("uwu")
+  s := C.CString("howdy")
   C.print(s)
   C.free(unsafe.Pointer(s))
 }
@@ -78,18 +78,53 @@ internal scheduler.
 Bun on the other hand is just kinda neat where you just load the library and do
 calls:
 
+```c
+// libprint.c
+// gcc -shared -o libprint.so -fPIC libprint.c
+// -shared (shared library), -fPIC (position independent code)
+#include <stdio.h>
+#include <stdlib.h>
+
+void print(char *s) {
+  printf(s);
+  printf("\n");
+}
+```
+
 ```js
 import { dlopen, FFIType, CString } from "bun:ffi";
 
-const lib = dlopen("path/to/library.so", {
-  printf: {
+const lib = dlopen("./libprint.so", {
+  print: {
     args: [FFIType.cstring],
-    returns: FFIType.cstring,
+    returns: FFIType.void,
   },
 });
 
-const uwu = Buffer.from("uwu\n", "utf8");
-lib.symbols.printf(uwu);
+const howdy = Buffer.from("howdy\n", "utf8");
+lib.symbols.print(howdy);
 ```
 
-I'm sure a segfault will still crash the VM, but it's still neat!
+```
+// strace output
+// open file descriptor for libprint
+openat(AT_FDCWD, "./libprint.so", O_RDONLY|O_CLOEXEC) = 12
+// read into memory
+read(12, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0\0\0\0\0\0\0\0"..., 832) = 832
+fstat(12, {st_mode=S_IFREG|0755, st_size=14968, ...}) = 0
+getcwd("/home/skye/code/test_ffi", 128) = 30
+// probably mmap'ing the memory for the library, setting it to executable
+mmap(NULL, 16416, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 12, 0) = 0x7ffac9db0000
+mmap(0x7ffac9db1000, 4096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 12, 0x1000) = 0x7ffac9db1000
+mmap(0x7ffac9db2000, 4096, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 12, 0x2000) = 0x7ffac9db2000
+mmap(0x7ffac9db3000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 12, 0x2000) = 0x7ffac9db3000
+close(12)                               = 0
+// set the library memory to only be readable
+mprotect(0x7ffac9db3000, 4096, PROT_READ) = 0
+write(1, "howdy\n\21\2", 8)               = 8
+howdy
+write(1, "\n", 1)                       = 1
+^Q^B
+```
+
+I'm sure a segfault will still crash the VM, but it's still neat doing it at runtime!
